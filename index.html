@@ -1,1 +1,2653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Sub-Tool Calculator</title>
+<style>
+:root {
+  --bg-body: #f3f1f6;
+  --bg-card: #ffffff;
+  --text-main: #222222;
+  --text-sub: #555555;
+  --bg-display: #f8f9fa;
+  --border-color: #d1d5db;
+  --primary-color: #9b59b6;
+  --primary-light: #b57ad1;
+  --btn-num: #e6e9f2;
+  --btn-text: #000000;
+  --container-width: 100%;
+}
 
+[data-theme="dark"] {
+  --bg-body: #18181f;
+  --bg-card: #24242e;
+  --text-main: #f3f1f6;
+  --text-sub: #a1a1aa;
+  --bg-display: #2f2f3d;
+  --border-color: #3f3f50;
+  --primary-color: #8e44ad;
+  --primary-light: #9b59b6;
+  --btn-num: #3a3a4a;
+  --btn-text: #ffffff;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg-body);
+  color: var(--text-main);
+  transition: background 0.3s, color 0.3s;
+  padding-bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  padding: 14px 24px;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.theme-toggle {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  padding: 20px 24px;
+  box-sizing: border-box;
+}
+
+/* SCREEN CALIBRATION STRIP */
+.layout-selector-card {
+  background: var(--bg-card);
+  padding: 14px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  box-sizing: border-box;
+}
+.layout-selector-card p {
+  margin: 0 0 10px 0;
+  font-weight: bold;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--primary-color);
+}
+.layout-btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.layout-choice-btn {
+  flex: 1; min-width: 140px; padding: 10px; border: 1px solid var(--primary-light);
+  background: var(--bg-card); color: var(--text-main);
+  font-weight: bold; font-size: 13px; border-radius: 6px; cursor: pointer;
+}
+.layout-choice-btn.active-layout { background: var(--primary-color); color: white; }
+
+.view-section { display: none; width: 100%; }
+.view-section.active-view { display: block !important; }
+
+.hub-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.menu-card {
+  background: var(--bg-card);
+  padding: 22px 24px;
+  border-radius: 8px;
+  border-left: 5px solid var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+.menu-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+.menu-card:active {
+  transform: translateY(0);
+}
+.menu-card h4 { margin: 0 0 8px 0; color: var(--primary-color); font-size: 18px; pointer-events: none; }
+.menu-card p { margin: 0; font-size: 13px; color: var(--text-sub); line-height: 1.45; pointer-events: none; }
+
+.tool-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--bg-card);
+  padding: 24px 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid var(--border-color);
+}
+
+.calc-header-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 14px;
+}
+.calc-header-panel h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--text-main);
+}
+
+.nav-btn {
+  padding: 9px 18px;
+  background: #ff5e5e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s;
+}
+.nav-btn:hover { background: #e04848; }
+
+.sub-btn {
+  background: var(--primary-light);
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+.sub-btn:hover { background: var(--primary-color); }
+
+.field-label {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 12px 0 6px 0;
+  display: block;
+  color: var(--text-main);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 13px 16px;
+  margin: 4px 0 12px 0;
+  box-sizing: border-box;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14.5px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(155, 89, 182, 0.15);
+}
+
+.display {
+  height: 65px;
+  background: var(--bg-display);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 18px;
+  font-size: 32px;
+  border-radius: 6px;
+  font-family: monospace;
+  border: 1px solid var(--border-color);
+}
+
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.btn { height: 50px; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; color: var(--btn-text); font-weight: bold; }
+.num { background: var(--btn-num); }
+.op { background: #d6b3ff; color: #000; }
+.eq { background: var(--primary-light); color: white; }
+.clear { background: #ff5e5e; color: white; }
+
+.matrix-grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 10px 0; }
+.matrix-grid-3x3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0; }
+
+.action-calc-trigger {
+  width: 100%;
+  padding: 13px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 15px;
+  transition: opacity 0.15s;
+}
+.action-calc-trigger:hover { opacity: 0.95; }
+
+.result-box {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg-display);
+  border-radius: 6px;
+  font-weight: bold;
+  min-height: 24px;
+  word-break: break-all;
+  white-space: pre-line;
+  font-family: monospace;
+  border-left: 4px solid var(--primary-color);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.flex-group { display: flex; gap: 10px; align-items: center; }
+.stopwatch-disp { font-size: 38px; text-align: center; font-family: monospace; margin: 16px 0; font-weight: bold; }
+
+.graph-canvas-container {
+  width: 100%;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-display);
+  border-radius: 8px;
+  padding: 14px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
+}
+.graph-canvas-container canvas {
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 680px) {
+  .menu-grid { grid-template-columns: 1fr; }
+  .tool-list-grid { grid-template-columns: 1fr; }
+  .card { padding: 18px 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span>🧮 Engineering Sub-Tool Calculator</span>
+  <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+</header>
+
+<div class="container">
+
+  <!-- ==================== MAIN HUB VIEW ==================== -->
+  <div id="view-main-hub" class="view-section active-view">
+    <div class="layout-selector-card">
+      <p>🖥 Screen Mode Calibration</p>
+      <div class="layout-btn-group">
+        <button id="btn-layout-auto" class="layout-choice-btn active-layout" onclick="setLayoutMode('auto')">🔄 Auto-Detect Device</button>
+        <button id="btn-layout-laptop" class="layout-choice-btn" onclick="setLayoutMode('laptop')">💻 Laptop Mode (100% Wide)</button>
+        <button id="btn-layout-phone" class="layout-choice-btn" onclick="setLayoutMode('phone')">📱 Mobile Scale</button>
+      </div>
+    </div>
+
+    <div class="hub-title">Engineering Calculators</div>
+    <div class="menu-grid">
+      <div class="menu-card" onclick="switchView('hub-powersystems')">
+        <h4>⚡ Power Systems &amp; Networks</h4>
+        <p>Star-Delta (Y-to-Δ) &amp; Delta-Star (Δ-to-Y), 3-Phase Power Analyzer, Floating Neutral Shift, THD Harmonics, Op-Amp Lab, 3-Phase Rectifier.</p>
+      </div>
+
+      <div class="menu-card" onclick="switchView('hub-math')">
+        <h4>📐 Core Engineering Mathematics</h4>
+        <p>Visual Coordinate Grapher, Advanced Calculus (Integrals &amp; Derivatives), Polar ⇄ Rect, Matrices 2x2/3x3, Trig Logs, Basic Grid.</p>
+      </div>
+
+      <div class="menu-card" onclick="switchView('hub-circuits')">
+        <h4>📡 Circuits, Signals &amp; Networks</h4>
+        <p>Harmonic Distortion (THD), Ohm's &amp; DC Power, 3-Phase Rectifier &amp; Ripple, Filters, Reactance, LC Resonance, Wavelengths, 555 Pulses, Nyquist.</p>
+      </div>
+
+      <div class="menu-card" onclick="switchView('hub-hardware')">
+        <h4>🔢 Hardware Layout, Radixes &amp; Logic</h4>
+        <p>Multi-Radix Base Converter, Logic Gate Transformers (AND, OR, XOR, NAND, NOR, XNOR, NOT), 4-Band Resistor Decoder.</p>
+      </div>
+
+      <div class="menu-card" onclick="switchView('hub-academic')">
+        <h4>🎓 Academic Indexing &amp; Project Finance</h4>
+        <p>SPI Course Grading, CPI Predictors, CGPA Multi-Semester Aggregator, Loan EMI Liabilities, Simple Interest &amp; Percentage.</p>
+      </div>
+
+      <div class="menu-card" onclick="switchView('hub-utilities')">
+        <h4>⏱️ Productivity Utilities &amp; Mechanics</h4>
+        <p>Battery Life &amp; Run-Time, Kinematics Equations Solver, Persistent Notes, Precision Stopwatch, Wave Period, Units &amp; Currency.</p>
+      </div>
+
+      <!-- NEW: HARMONIC DISTORTION (THD) & SPECTRUM ANALYZER CARD -->
+      <div class="menu-card" onclick="openTool('thd')" style="border-left-color: #e74c3c;">
+        <h4 style="color:#e74c3c;">〰️ Harmonic Distortion (THD) &amp; Spectrum Lab</h4>
+        <p>Compute Total Harmonic Distortion (THD %), True RMS, Distortion Factor, Power Factor Derating, with live Harmonic Bar Spectrum &amp; Waveform Graph.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('prog')">
+        <h4>🔢 Dynamic Numeral Radix Converter</h4>
+        <p>Live synchronized bidirectional decimal, binary, hexadecimal, and octal multi-base conversion engine.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('visual-coord')" style="border-left-color: #e67e22;">
+        <h4 style="color:#e67e22;">🌐 Visual 2D/3D Coordinate Converter &amp; Grapher</h4>
+        <p>Real-time vector &amp; projection graph. Convert between Cartesian, Polar, Cylindrical, and Spherical space.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('3phase')">
+        <h4>⚡ Balanced 3-Phase Power Analyzer</h4>
+        <p>Calculate industrial Active (P), Reactive (Q), and Apparent (S) power vectors using Line-to-Line values.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('neutral')">
+        <h4>📈 Floating Neutral Shift Simulator</h4>
+        <p>Simulate unbalance conditions across neutral reference vectors to track line displacement potential offsets.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('stardelta')">
+        <h4>⭐ Star ⇄ Delta Network Converter</h4>
+        <p>Bidirectional Y-to-Δ and Δ-to-Y transformation with exact nodal impedances and star/delta resistance formulas.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('opamp')">
+        <h4>⚏ Op-Amp Gain &amp; Bandwidth Lab</h4>
+        <p>Inverting, Non-Inverting, and Differential Amplifier Gain, Closed-Loop Cutoff Frequency (GBWP), and Rail Clipping.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('integrals')">
+        <h4>∫ Multiple Integral Calculus Suite</h4>
+        <p>Single, Double (dx dy), and Triple (dx dy dz) Definite Integration Solver with Adaptive Simpson's &amp; Monte Carlo Quadrature.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('derivatives')">
+        <h4>d/dx Differentiation &amp; Gradient Lab</h4>
+        <p>High-Precision 1st Derivative f'(x), 2nd Derivative f''(x), and Multivariable Partial Derivatives ∂f/∂x &amp; ∂f/∂y.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('rectifier')">
+        <h4>⚡ 3-Phase Rectifier &amp; Ripple Factor</h4>
+        <p>Analyze 3-phase half-wave, full-wave (6-pulse), and controlled rectifiers for DC average, RMS, and ripple factors.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('battery')">
+        <h4>🔋 Battery Life &amp; Run-Time Estimator</h4>
+        <p>Calculate backup duration, usable capacity (Wh), and runtime based on Ah/mAh, load current, DoD, and efficiency.</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('polar-rect')">
+        <h4>🔄 Polar ⇄ Rectangular Converter</h4>
+        <p>Fast conversion between Phasor Polar Form (r ∠ θ) and Rectangular Cartesian coordinates (x + jy).</p>
+      </div>
+
+      <div class="menu-card" onclick="openTool('regression')">
+        <h4>📊 Linear Regression &amp; Curve Fitter</h4>
+        <p>Statistical laboratory tool modeling coordinate arrays to output exact slope constants and R² accuracy fields.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SUB-HUBS ==================== -->
+  <div id="hub-powersystems" class="view-section">
+    <div class="calc-header-panel">
+      <h3>Power Systems &amp; Networks</h3>
+      <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+    </div>
+    <div class="tool-list-grid">
+      <button class="sub-btn" onclick="openTool('3phase')">3Φ Power Analyzer</button>
+      <button class="sub-btn" onclick="openTool('neutral')">Floating Neutral</button>
+      <button class="sub-btn" onclick="openTool('thd')">Harmonics &amp; THD</button>
+      <button class="sub-btn" onclick="openTool('stardelta')">Star ⇄ Delta</button>
+      <button class="sub-btn" onclick="openTool('opamp')">Op-Amp Lab</button>
+      <button class="sub-btn" onclick="openTool('rectifier')">3Φ Rectifier</button>
+    </div>
+  </div>
+
+  <div id="hub-math" class="view-section">
+    <div class="calc-header-panel">
+      <h3>Core Engineering Math</h3>
+      <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+    </div>
+    <div class="tool-list-grid">
+      <button class="sub-btn" onclick="openTool('visual-coord')">🌐 Visual Coord Grapher</button>
+      <button class="sub-btn" onclick="openTool('integrals')">Integrals (1,2,3)</button>
+      <button class="sub-btn" onclick="openTool('derivatives')">Derivatives d/dx</button>
+      <button class="sub-btn" onclick="openTool('polar-rect')">Polar ⇄ Rect</button>
+      <button class="sub-btn" onclick="openTool('matrix2')">2x2 Matrix</button>
+      <button class="sub-btn" onclick="openTool('matrix3')">3x3 Matrix</button>
+      <button class="sub-btn" onclick="openTool('basic')">Basic Calc</button>
+      <button class="sub-btn" onclick="openTool('sci')">Sci / Trig</button>
+      <button class="sub-btn" onclick="openTool('complex')">Complex (j)</button>
+    </div>
+  </div>
+
+  <div id="hub-circuits" class="view-section">
+    <div class="calc-header-panel">
+      <h3>Circuits &amp; Signals</h3>
+      <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+    </div>
+    <div class="tool-list-grid">
+      <button class="sub-btn" onclick="openTool('thd')">Harmonics &amp; THD</button>
+      <button class="sub-btn" onclick="openTool('ohm')">Ohm / VIP</button>
+      <button class="sub-btn" onclick="openTool('vdiv')">Volt Divider</button>
+      <button class="sub-btn" onclick="openTool('filter')">RC Filter</button>
+      <button class="sub-btn" onclick="openTool('react')">Reactance</button>
+      <button class="sub-btn" onclick="openTool('lcres')">LC Resonance</button>
+      <button class="sub-btn" onclick="openTool('acpower')">AC Power Factor</button>
+      <button class="sub-btn" onclick="openTool('rectifier')">3Φ Rectifier</button>
+      <button class="sub-btn" onclick="openTool('wave')">Wave Wavelength</button>
+      <button class="sub-btn" onclick="openTool('timer555')">555 Astable</button>
+      <button class="sub-btn" onclick="openTool('nyquist')">Nyquist Sampler</button>
+      <button class="sub-btn" onclick="openTool('sqnr')">ADC SQNR</button>
+      <button class="sub-btn" onclick="openTool('db')">Decibels dB</button>
+    </div>
+  </div>
+
+  <div id="hub-hardware" class="view-section">
+    <div class="calc-header-panel">
+      <h3>Hardware &amp; Logic</h3>
+      <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+    </div>
+    <div class="tool-list-grid">
+      <button class="sub-btn" onclick="openTool('prog')">Numeral Converter</button>
+      <button class="sub-btn" onclick="openTool('gatetrans')">Logic Gate Transformer</button>
+      <button class="sub-btn" onclick="openTool('res')">Resistor Code</button>
+    </div>
+  </div>
+
+  <div id="hub-academic" class="view-section">
+    <div class="calc-header-panel">
+      <h3>Academic &amp; Finance</h3>
+      <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+    </div>
+    <div class="tool-list-grid">
+      <button class="sub-btn" onclick="openTool('spicpi')">SPI &amp; CPI Solver</button>
+      <button class="sub-btn" onclick="openTool('cgpa')">CGPA Tracker</button>
+      <button class="sub-btn" onclick="openTool('emi')">Loan EMI</button>
+      <button class="sub-btn" onclick="openTool('fin')">Financial SI</button>
+      <button class="sub-btn" onclick="openTool('per')">Percentage %</button>
+    </div>
+  </div>
+
+  <div id="hub-utilities" class="view-section">
+    <div class="calc-header-panel">
+      <h3>Productivity Utilities</h3>
+      <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+    </div>
+    <div class="tool-list-grid">
+      <button class="sub-btn" onclick="openTool('battery')">Battery Run-Time</button>
+      <button class="sub-btn" onclick="openTool('kinematics')">Kinematics</button>
+      <button class="sub-btn" onclick="openTool('waveper')">Wave Period</button>
+      <button class="sub-btn" onclick="openTool('note')">Notes 📝</button>
+      <button class="sub-btn" onclick="openTool('sw')">Stopwatch ⏱️</button>
+      <button class="sub-btn" onclick="openTool('temp')">Temp °C/K</button>
+      <button class="sub-btn" onclick="openTool('unit')">Units Converter</button>
+      <button class="sub-btn" onclick="openTool('curr')">Currency</button>
+      <button class="sub-btn" onclick="openTool('age')">Age Calc</button>
+      <button class="sub-btn" onclick="openTool('bmi')">BMI</button>
+      <button class="sub-btn" onclick="openTool('cal')">Calendar 📅</button>
+    </div>
+  </div>
+
+  <!-- ==================== INDIVIDUAL CALCULATOR PAGES ==================== -->
+
+  <!-- NEW: HARMONIC DISTORTION (THD) & SPECTRUM LAB -->
+  <div id="tool-thd" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>〰️ Harmonic Distortion (THD) &amp; Spectrum Analyzer</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <p style="font-size:14px; margin:0 0 12px 0; color:var(--text-sub);">
+        Enter the Fundamental (1st Harmonic) RMS value and higher-order harmonic magnitudes (Volts or Amps) to compute IEEE-519 THD, True RMS, Distortion Power Factor, and plot the live waveform &amp; spectrum.
+      </p>
+
+      <div class="flex-group">
+        <div style="flex:1;">
+          <span class="field-label">Fundamental (H1 - 50/60Hz)</span>
+          <input id="thdH1" type="number" step="any" placeholder="Fundamental RMS" value="230">
+        </div>
+        <div style="flex:1;">
+          <span class="field-label">Displacement PF (cos φ1)</span>
+          <input id="thdDpf" type="number" step="any" placeholder="0 to 1" value="0.95">
+        </div>
+      </div>
+
+      <span class="field-label">Odd &amp; Even Harmonic Magnitudes (H2 to H9)</span>
+      <div class="matrix-grid-2x2">
+        <input id="thdH2" type="number" step="any" placeholder="2nd Harmonic (H2)" value="2">
+        <input id="thdH3" type="number" step="any" placeholder="3rd Harmonic (H3)" value="35">
+        <input id="thdH5" type="number" step="any" placeholder="5th Harmonic (H5)" value="22">
+        <input id="thdH7" type="number" step="any" placeholder="7th Harmonic (H7)" value="12">
+      </div>
+      <input id="thdHMore" type="text" placeholder="Additional Harmonics (comma-separated, e.g. 9th, 11th: 6, 4)" value="6, 3">
+
+      <button class="action-calc-trigger" onclick="calcTHD()">Analyze Harmonics &amp; Render Spectrum</button>
+      <div id="thdOut" class="result-box">Click analyze to calculate THD_F, THD_R, True RMS, and True Power Factor.</div>
+
+      <div class="graph-canvas-container">
+        <span style="font-size:13px; font-weight:bold; color:var(--primary-color); margin-bottom:8px;">📊 Synthesized Distorted Waveform (Left) &amp; Harmonic Spectrum (Right)</span>
+        <canvas id="thdCanvas" width="560" height="260"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- DYNAMIC NUMERAL RADIX CONVERTER -->
+  <div id="tool-prog" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Dynamic Numeral Radix Converter</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <p style="font-size:14.5px; margin:0 0 14px 0; color:var(--text-main); font-weight:bold;">Type inside any field to sync values across all bases:</p>
+
+      <span class="field-label">Decimal Format (Base 10)</span>
+      <input id="radixDec" type="text" placeholder="Decimal Value" oninput="executeDynamicRadixMap('10')">
+
+      <span class="field-label">Binary Word Field (Base 2)</span>
+      <input id="radixBin" type="text" placeholder="Binary Value" oninput="executeDynamicRadixMap('2')">
+
+      <span class="field-label">Hexadecimal Register (Base 16)</span>
+      <input id="radixHex" type="text" placeholder="Hexadecimal Value" oninput="executeDynamicRadixMap('16')">
+
+      <span class="field-label">Octal Field Map (Base 8)</span>
+      <input id="radixOct" type="text" placeholder="Octal Value" oninput="executeDynamicRadixMap('8')">
+    </div>
+  </div>
+
+  <!-- VISUAL COORDINATE GRAPH -->
+  <div id="tool-visual-coord" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Visual Coordinate Converter &amp; Grapher</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Input Coordinate System</span>
+      <select id="vcoordInputType" onchange="updateVCoordInputs()">
+        <option value="cartesian">Cartesian Coordinates [ X, Y, Z ]</option>
+        <option value="polar">Polar / Cylindrical [ Radius r/ρ, Angle θ, Height Z ]</option>
+        <option value="spherical">Spherical Coordinates [ Radius r, Inclination θ, Azimuth Φ ]</option>
+      </select>
+
+      <div class="flex-group">
+        <input id="vcVal1" type="number" step="any" placeholder="X component" value="4">
+        <input id="vcVal2" type="number" step="any" placeholder="Y component" value="3">
+        <input id="vcVal3" type="number" step="any" placeholder="Z component" value="2">
+      </div>
+
+      <div class="flex-group">
+        <span class="field-label" style="min-width:90px; margin:0;">Angle Units:</span>
+        <select id="vcAngleUnit" onchange="calcVisualCoord()">
+          <option value="deg">Degrees (°)</option>
+          <option value="rad">Radians (rad)</option>
+        </select>
+      </div>
+
+      <button class="action-calc-trigger" onclick="calcVisualCoord()">Transform &amp; Plot Vector Graph</button>
+      <div id="vcOut" class="result-box">Converted coordinates will appear here.</div>
+
+      <div class="graph-canvas-container">
+        <span style="font-size:13px; font-weight:bold; color:var(--primary-color); margin-bottom:8px;">📊 Real-Time Vector &amp; Projection Graph</span>
+        <canvas id="coordCanvas" width="480" height="320"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-PHASE BALANCED POWER -->
+  <div id="tool-3phase" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>3-Phase Balanced Power Lab</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Line-to-Line Voltage (V_L) [V]</span>
+      <input id="tpVolts" type="number" step="any" placeholder="e.g. 415" value="415">
+      <span class="field-label">Line Current (I_L) [A]</span>
+      <input id="tpAmps" type="number" step="any" placeholder="e.g. 10" value="10">
+      <span class="field-label">Power Factor (cosΦ) [0 - 1]</span>
+      <input id="tpPf" type="number" step="any" placeholder="e.g. 0.85" value="0.85">
+      <button class="action-calc-trigger" onclick="calcThreePhasePower()">Evaluate Power Vectors</button>
+      <div id="threephaseout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- FLOATING NEUTRAL SHIFT -->
+  <div id="tool-neutral" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Floating Neutral Shift Vector Lab</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <p style="font-size:14px; margin:0 0 10px 0; font-weight:bold;">Enter Phase Load Conductance/Admittances (Y = 1/R) [Siemens]:</p>
+      <span class="field-label">Phase A Admittance (Y_A)</span>
+      <input id="neuY1" type="number" step="any" placeholder="Y_A" value="0.1">
+      <span class="field-label">Phase B Admittance (Y_B)</span>
+      <input id="neuY2" type="number" step="any" placeholder="Y_B" value="0.05">
+      <span class="field-label">Phase C Admittance (Y_C)</span>
+      <input id="neuY3" type="number" step="any" placeholder="Y_C" value="0.02">
+      <button class="action-calc-trigger" onclick="calcNeutralShift()">Execute Shift Simulation</button>
+      <div id="neutralout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- STAR DELTA -->
+  <div id="tool-stardelta" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Star ⇄ Delta Network Converter</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Conversion Mode</span>
+      <select id="sdMode" onchange="toggleSDMode()">
+        <option value="star2delta">Star to Delta (Y ➔ Δ)</option>
+        <option value="delta2star">Delta to Star (Δ ➔ Y)</option>
+      </select>
+      <div class="flex-group">
+        <input id="sdR1" type="number" step="any" placeholder="R_A (Ω)">
+        <input id="sdR2" type="number" step="any" placeholder="R_B (Ω)">
+        <input id="sdR3" type="number" step="any" placeholder="R_C (Ω)">
+      </div>
+      <button class="action-calc-trigger" onclick="calcStarDelta()">Convert Impedances</button>
+      <div id="sdOut" class="result-box">Enter resistor values to compute star/delta transformation.</div>
+    </div>
+  </div>
+
+  <!-- OP-AMP LAB -->
+  <div id="tool-opamp" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Op-Amp Gain &amp; Bandwidth Lab</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Circuit Configuration</span>
+      <select id="opampType" onchange="toggleOpampConfig()">
+        <option value="inverting">Inverting Amplifier (-Rf / Rin)</option>
+        <option value="noninverting">Non-Inverting Amplifier (1 + Rf / Rin)</option>
+        <option value="differential">Differential Amplifier (Balanced Bridge)</option>
+      </select>
+      <div class="flex-group">
+        <input id="opRin" type="number" step="any" placeholder="Input Resistor R_in (kΩ)" value="10">
+        <input id="opRf" type="number" step="any" placeholder="Feedback Resistor R_f (kΩ)" value="100">
+      </div>
+      <div class="flex-group">
+        <input id="opVin" type="number" step="any" placeholder="Input Voltage V_in (V)" value="0.5">
+        <input id="opGbwp" type="number" step="any" placeholder="Op-Amp GBWP (MHz)" value="1">
+      </div>
+      <div class="flex-group">
+        <input id="opVcc" type="number" step="any" placeholder="+Vcc Rail (V)" value="15">
+        <input id="opVee" type="number" step="any" placeholder="-Vee Rail (V)" value="-15">
+      </div>
+      <button class="action-calc-trigger" onclick="calcOpAmp()">Analyze Op-Amp</button>
+      <div id="opampOut" class="result-box">Configure op-amp parameters to evaluate gain, output voltage, and bandwidth.</div>
+    </div>
+  </div>
+
+  <!-- MULTIPLE INTEGRALS -->
+  <div id="tool-integrals" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Multiple Definite Integration Suite</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Integration Order</span>
+      <select id="intOrder" onchange="toggleIntOrder()">
+        <option value="single">Single Definite Integral ∫ f(x) dx</option>
+        <option value="double">Double Definite Integral ∬ f(x,y) dx dy</option>
+        <option value="triple">Triple Definite Integral ∭ f(x,y,z) dx dy dz</option>
+      </select>
+      <span class="field-label">Integrand Function Expression</span>
+      <input id="intExpr" type="text" placeholder="e.g. x^2 + sin(x)" value="x^2">
+      <div class="flex-group">
+        <input id="intA" type="number" step="any" placeholder="x Lower Limit (a)" value="0">
+        <input id="intB" type="number" step="any" placeholder="x Upper Limit (b)" value="2">
+      </div>
+      <div id="intDoubleGroup" class="flex-group" style="display:none;">
+        <input id="intC" type="number" step="any" placeholder="y Lower Limit (c)" value="0">
+        <input id="intD" type="number" step="any" placeholder="y Upper Limit (d)" value="1">
+      </div>
+      <div id="intTripleGroup" class="flex-group" style="display:none;">
+        <input id="intE" type="number" step="any" placeholder="z Lower Limit (e)" value="0">
+        <input id="intF" type="number" step="any" placeholder="z Upper Limit (f)" value="1">
+      </div>
+      <button class="action-calc-trigger" onclick="calcIntegrals()">Evaluate Integral</button>
+      <div id="intOut" class="result-box">Outputs numerical integration using Simpson's Rule.</div>
+    </div>
+  </div>
+
+  <!-- DERIVATIVES LAB -->
+  <div id="tool-derivatives" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Differentiation &amp; Gradient Lab</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Derivative Operation</span>
+      <select id="diffType" onchange="toggleDiffType()">
+        <option value="first_second">1st and 2nd Order Single Derivative f'(x) &amp; f''(x)</option>
+        <option value="partial">Partial Derivatives &amp; Gradient [∂f/∂x, ∂f/∂y]</option>
+      </select>
+      <span class="field-label">Function Expression</span>
+      <input id="diffExpr" type="text" placeholder="e.g. x^3 - 2*x + 1" value="x^3 - 2*x + 1">
+      <div class="flex-group">
+        <input id="diffX0" type="number" step="any" placeholder="Evaluation Point x0" value="1">
+        <input id="diffY0" type="number" step="any" placeholder="Evaluation Point y0 (if multivariable)" value="1" style="display:none;">
+      </div>
+      <button class="action-calc-trigger" onclick="calcDerivatives()">Compute Derivatives</button>
+      <div id="diffOut" class="result-box">Outputs derivative values and tangent line equation.</div>
+    </div>
+  </div>
+
+  <!-- 3-PHASE RECTIFIER -->
+  <div id="tool-rectifier" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>3-Phase Rectifier &amp; Ripple Analyzer</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Topology</span>
+      <select id="recTopology" onchange="toggleRecTopology()">
+        <option value="fullwave">3-Phase Full-Wave Bridge (6-Pulse Uncontrolled)</option>
+        <option value="halfwave">3-Phase Half-Wave (3-Pulse Uncontrolled)</option>
+        <option value="controlled">3-Phase Full-Wave Controlled (6-Pulse Thyristor)</option>
+      </select>
+      <span class="field-label">RMS Line-to-Line Input Voltage (V_LL) [V]</span>
+      <input id="recVline" type="number" step="any" placeholder="V_LL" value="415">
+      <span class="field-label">Supply Frequency (f) [Hz]</span>
+      <input id="recFreq" type="number" step="any" placeholder="f [Hz]" value="50">
+      <div id="recAlphaGroup" style="display:none;">
+        <span class="field-label">Firing Delay Angle α [Degrees]</span>
+        <input id="recAlpha" type="number" step="any" placeholder="α" value="30">
+      </div>
+      <button class="action-calc-trigger" onclick="calcRectifier()">Analyze Rectifier</button>
+      <div id="recOut" class="result-box">Supply voltage parameters to evaluate DC output and ripple factor.</div>
+    </div>
+  </div>
+
+  <!-- BATTERY ESTIMATOR -->
+  <div id="tool-battery" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Battery Life &amp; Run-Time Estimator</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Battery Capacity</span>
+      <div class="flex-group">
+        <input id="batCapacity" type="number" step="any" placeholder="Capacity" value="2500">
+        <select id="batCapUnit" style="max-width:120px;">
+          <option value="mah">mAh</option>
+          <option value="ah">Ah</option>
+        </select>
+      </div>
+      <span class="field-label">Nominal Battery Voltage (V)</span>
+      <input id="batVoltage" type="number" step="any" placeholder="e.g. 3.7, 12" value="3.7">
+      <span class="field-label">Load Mode</span>
+      <select id="batLoadMode" onchange="toggleBatLoadMode()">
+        <option value="current">Continuous Current</option>
+        <option value="power">Load Power (Watts)</option>
+      </select>
+      <div class="flex-group">
+        <input id="batLoadVal" type="number" step="any" placeholder="Load Current" value="250">
+        <select id="batLoadUnit" style="max-width:120px;">
+          <option value="ma">mA</option>
+          <option value="a">A</option>
+        </select>
+      </div>
+      <div class="flex-group">
+        <div style="flex:1;">
+          <span class="field-label">DoD [%]</span>
+          <input id="batDod" type="number" step="any" placeholder="DoD [%]" value="80">
+        </div>
+        <div style="flex:1;">
+          <span class="field-label">Efficiency [%]</span>
+          <input id="batEff" type="number" step="any" placeholder="Efficiency [%]" value="90">
+        </div>
+      </div>
+      <button class="action-calc-trigger" onclick="calcBatteryLife()">Calculate Run-Time</button>
+      <div id="batOut" class="result-box">Calculates operating hours, usable Wh, and C-rate.</div>
+    </div>
+  </div>
+
+  <!-- POLAR RECT -->
+  <div id="tool-polar-rect" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Polar ⇄ Rectangular Converter</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Mode</span>
+      <select id="prMode" onchange="togglePRMode()">
+        <option value="rect2polar">Rectangular to Polar (x + jy ➔ r ∠ θ)</option>
+        <option value="polar2rect">Polar to Rectangular (r ∠ θ ➔ x + jy)</option>
+      </select>
+      <div class="flex-group">
+        <input id="prVal1" type="number" step="any" placeholder="Real Part (x)" value="3">
+        <input id="prVal2" type="number" step="any" placeholder="Imaginary Part (y)" value="4">
+      </div>
+      <span class="field-label">Angle Unit</span>
+      <select id="prAngleUnit">
+        <option value="deg">Degrees (°)</option>
+        <option value="rad">Radians (rad)</option>
+      </select>
+      <button class="action-calc-trigger" onclick="calcPolarRect()">Convert Coordinates</button>
+      <div id="prOut" class="result-box">Outputs rectangular and phasor form.</div>
+    </div>
+  </div>
+
+  <!-- LINEAR REGRESSION -->
+  <div id="tool-regression" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Linear Regression Lab</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">X Data Array (comma-separated)</span>
+      <input id="regX" type="text" placeholder="e.g. 1, 2, 3, 4, 5" value="1, 2, 3, 4, 5">
+      <span class="field-label">Y Data Array (comma-separated)</span>
+      <input id="regY" type="text" placeholder="e.g. 2, 4, 5, 4, 6" value="2, 4, 5, 4, 6">
+      <button class="action-calc-trigger" onclick="calcLinearRegression()">Fit Trendline</button>
+      <div id="regressionout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- BASIC CALC -->
+  <div id="tool-basic" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Basic Calculator</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <div id="d" class="display">0</div>
+      <div class="grid">
+        <button class="btn clear" onclick="clr()">C</button>
+        <button class="btn op" onclick="add('/')">÷</button>
+        <button class="btn op" onclick="add('*')">×</button>
+        <button class="btn op" onclick="add('-')">-</button>
+        <button class="btn num" onclick="add('7')">7</button>
+        <button class="btn num" onclick="add('8')">8</button>
+        <button class="btn num" onclick="add('9')">9</button>
+        <button class="btn op" onclick="add('+')">+</button>
+        <button class="btn num" onclick="add('4')">4</button>
+        <button class="btn num" onclick="add('5')">5</button>
+        <button class="btn num" onclick="add('6')">6</button>
+        <button class="btn eq" onclick="calc()">=</button>
+        <button class="btn num" onclick="add('1')">1</button>
+        <button class="btn num" onclick="add('2')">2</button>
+        <button class="btn num" onclick="add('3')">3</button>
+        <button class="btn num" onclick="add('0')">0</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCIENTIFIC -->
+  <div id="tool-sci" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Scientific &amp; Trigonometric Logs</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Input Value</span>
+      <input id="sinput" placeholder="Enter number input" type="number" value="45">
+      <div class="flex-group">
+        <button class="btn num" style="width:100%; border-radius:6px;" onclick="sqrt()">√x</button>
+        <button class="btn num" style="width:100%; border-radius:6px;" onclick="sq()">x²</button>
+        <button class="btn num" style="width:100%; border-radius:6px;" onclick="trig('sin')">sin</button>
+        <button class="btn num" style="width:100%; border-radius:6px;" onclick="trig('cos')">cos</button>
+        <button class="btn num" style="width:100%; border-radius:6px;" onclick="trig('tan')">tan</button>
+      </div>
+      <div class="flex-group" style="margin-top:10px;">
+        <button class="btn op" style="width:100%; border-radius:6px;" onclick="lnLog('ln')">ln</button>
+        <button class="btn op" style="width:100%; border-radius:6px;" onclick="lnLog('log')">log10</button>
+      </div>
+      <div id="sout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- 2x2 MATRIX -->
+  <div id="tool-matrix2" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>2x2 Matrix Solver</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <div class="matrix-grid-2x2">
+        <input id="m11" type="number" placeholder="a11" value="1">
+        <input id="m12" type="number" placeholder="a12" value="2">
+        <input id="m21" type="number" placeholder="a21" value="3">
+        <input id="m22" type="number" placeholder="a22" value="4">
+      </div>
+      <div class="flex-group">
+        <button class="btn op" style="width:100%; border-radius:6px;" onclick="calcMatrix2('det')">Determinant</button>
+        <button class="btn op" style="width:100%; border-radius:6px;" onclick="calcMatrix2('trans')">Transpose</button>
+        <button class="btn eq" style="width:100%; border-radius:6px;" onclick="calcMatrix2('inv')">Inverse</button>
+      </div>
+      <div id="matrix2out" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- 3x3 MATRIX -->
+  <div id="tool-matrix3" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>3x3 Matrix Solver</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <div class="matrix-grid-3x3">
+        <input id="n11" type="number" placeholder="a11" value="1"><input id="n12" type="number" placeholder="a12" value="0"><input id="n13" type="number" placeholder="a13" value="2">
+        <input id="n21" type="number" placeholder="a21" value="0"><input id="n22" type="number" placeholder="a22" value="3"><input id="n23" type="number" placeholder="a23" value="1">
+        <input id="n31" type="number" placeholder="a31" value="4"><input id="n32" type="number" placeholder="a32" value="0"><input id="n33" type="number" placeholder="a33" value="5">
+      </div>
+      <div class="flex-group">
+        <button class="btn op" style="width:100%; border-radius:6px;" onclick="calcMatrix3('det')">Determinant</button>
+        <button class="btn op" style="width:100%; border-radius:6px;" onclick="calcMatrix3('trans')">Transpose</button>
+        <button class="btn eq" style="width:100%; border-radius:6px;" onclick="calcMatrix3('inv')">Inverse</button>
+      </div>
+      <div id="matrix3out" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- COMPLEX -->
+  <div id="tool-complex" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Complex Number Arithmetic</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <div class="flex-group">
+        <input id="c1Real" type="number" placeholder="Real A" value="3">
+        <input id="c1Imag" type="number" placeholder="Imag A (j)" value="4">
+      </div>
+      <div class="flex-group">
+        <input id="c2Real" type="number" placeholder="Real B" value="1">
+        <input id="c2Imag" type="number" placeholder="Imag B (j)" value="2">
+      </div>
+      <span class="field-label">Operation</span>
+      <select id="compOp">
+        <option value="add">Add (A + B)</option>
+        <option value="sub">Subtract (A - B)</option>
+        <option value="mul">Multiply (A * B)</option>
+        <option value="div">Divide (A / B)</option>
+      </select>
+      <button class="action-calc-trigger" onclick="calcComplex()">Calculate Phasor</button>
+      <div id="complexout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- OHM'S LAW -->
+  <div id="tool-ohm" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Unified Ohm's Law Solver</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <p style="font-size:13px; color:#e67e22; margin:0 0 10px 0; font-weight:bold;">Leave exactly one target box blank to solve.</p>
+      <span class="field-label">Voltage Source (V)</span>
+      <input id="ohmV" placeholder="Voltage Source (V)" type="number">
+      <span class="field-label">Current (I) [A]</span>
+      <input id="ohmI" placeholder="Current (I) [A]" type="number" value="2">
+      <span class="field-label">Resistance (R) [Ω]</span>
+      <input id="ohmR" placeholder="Resistance (R) [Ω]" type="number" value="10">
+      <button class="action-calc-trigger" onclick="calcOhm()">Solve Circuit</button>
+      <div id="ohmout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- VOLTAGE DIVIDER -->
+  <div id="tool-vdiv" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Voltage Divider Solver</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Input Voltage (Vin) [V]</span>
+      <input id="vdivVin" type="number" placeholder="Vin" value="12">
+      <span class="field-label">Resistor R1 (Ω)</span>
+      <input id="vdivR1" type="number" placeholder="R1" value="1000">
+      <span class="field-label">Resistor R2 (Ω)</span>
+      <input id="vdivR2" type="number" placeholder="R2" value="2000">
+      <button class="action-calc-trigger" onclick="calcVoltageDivider()">Solve Divider</button>
+      <div id="vdivout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- RC FILTER -->
+  <div id="tool-filter" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>RC Passive Filter Design</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Resistance (Ω)</span>
+      <input id="filtR" type="number" placeholder="Resistance" value="1000">
+      <span class="field-label">Capacitance (F)</span>
+      <input id="filtC" type="number" placeholder="Capacitance" value="0.000001">
+      <button class="action-calc-trigger" onclick="calcFilterCutoff()">Find Cut-off Frequency (fc)</button>
+      <div id="filterout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- REACTANCE -->
+  <div id="tool-react" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Inductive &amp; Capacitive Reactance</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Frequency (Hz)</span>
+      <input id="reactFreq" type="number" placeholder="Frequency (Hz)" value="1000">
+      <span class="field-label">Inductance (H)</span>
+      <input id="reactL" type="number" placeholder="Inductance (H)" value="0.01">
+      <span class="field-label">Capacitance (F)</span>
+      <input id="reactC" type="number" placeholder="Capacitance (F)" value="0.000001">
+      <button class="action-calc-trigger" onclick="calcReactance()">Compute Impedance</button>
+      <div id="reactout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- LC RESONANCE -->
+  <div id="tool-lcres" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>LC Tuned Resonance</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Inductance L (H)</span>
+      <input id="lcresL" type="number" placeholder="L (H)" value="0.001">
+      <span class="field-label">Capacitance C (F)</span>
+      <input id="lcresC" type="number" placeholder="C (F)" value="0.0000001">
+      <button class="action-calc-trigger" onclick="calcLCResonance()">Find Resonant Frequency (f0)</button>
+      <div id="lcresout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- AC POWER FACTOR -->
+  <div id="tool-acpower" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>AC Power Network Analyzer</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">RMS Voltage (V)</span>
+      <input id="acVolts" type="number" placeholder="V" value="230">
+      <span class="field-label">RMS Current (I) [A]</span>
+      <input id="acAmps" type="number" placeholder="I" value="5">
+      <span class="field-label">Phase Angle Delta (Degrees)</span>
+      <input id="acPhase" type="number" placeholder="Phase [deg]" value="30">
+      <button class="action-calc-trigger" onclick="calcACPower()">Analyze Power Vector</button>
+      <div id="acpowerout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- WAVELENGTH -->
+  <div id="tool-wave" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Signal Wavelength Conversion</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Frequency (Hz)</span>
+      <input id="waveFreq" type="number" placeholder="Frequency" value="100000000">
+      <span class="field-label">Medium Velocity</span>
+      <select id="waveMedium">
+        <option value="300000000">Vacuum / Air (EM Wave: ~3*10^8 m/s)</option>
+        <option value="343">Air at 20°C (Acoustic Wave: 343 m/s)</option>
+        <option value="200000000">Copper Core (Velocity: ~2*10^8 m/s)</option>
+      </select>
+      <button class="action-calc-trigger" onclick="calcWavelength()">Determine Wave Profile</button>
+      <div id="waveout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- 555 TIMER -->
+  <div id="tool-timer555" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>555 Timer Configurations</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Resistor R1 (Ω)</span>
+      <input id="t555R1" type="number" placeholder="R1" value="1000">
+      <span class="field-label">Resistor R2 (Ω)</span>
+      <input id="t555R2" type="number" placeholder="R2" value="10000">
+      <span class="field-label">Capacitance C (F)</span>
+      <input id="t555C" type="number" placeholder="C" value="0.000001">
+      <button class="action-calc-trigger" onclick="calc555Timer()">Generate Pulse Diagnostics</button>
+      <div id="timer555out" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- NYQUIST -->
+  <div id="tool-nyquist" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Nyquist Sampling Rates</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Maximum Signal Frequency (Hz)</span>
+      <input id="nyqMaxFreq" type="number" placeholder="f_max" value="20000">
+      <button class="action-calc-trigger" onclick="calcNyquistRate()">Analyze Bounds</button>
+      <div id="nyquistout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- ADC SQNR -->
+  <div id="tool-sqnr" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>ADC Quantization Noise Solver</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">ADC Resolution Bits (n)</span>
+      <input id="adcBits" type="number" placeholder="Bits (n)" value="12">
+      <button class="action-calc-trigger" onclick="calcSQNR()">Compute SQNR</button>
+      <div id="sqnrout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- DECIBELS -->
+  <div id="tool-db" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Signal Gain &amp; dB Levels</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Input Value / Ratio</span>
+      <input id="dbInput" type="number" placeholder="Input Value" value="2">
+      <span class="field-label">Calculation Type</span>
+      <select id="dbCalcType">
+        <option value="pRatio">Power Ratio to dB (10 log)</option>
+        <option value="vRatio">Voltage Ratio to dB (20 log)</option>
+        <option value="dbm">Power Watts to dBm</option>
+      </select>
+      <button class="action-calc-trigger" onclick="calcDecibels()">Analyze Gain</button>
+      <div id="dbout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- LOGIC GATES -->
+  <div id="tool-gatetrans" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Logic Gate Transformer</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <div class="flex-group">
+        <input id="gateInputA" type="text" placeholder="Operand A (Dec or Bin)" value="12">
+        <input id="gateInputB" type="text" placeholder="Operand B (Dec or Bin)" value="5">
+      </div>
+      <span class="field-label">Logic Gate Operator</span>
+      <select id="gateLogicOp">
+        <option value="AND">AND</option>
+        <option value="OR">OR</option>
+        <option value="XOR">XOR</option>
+        <option value="NAND">NAND</option>
+        <option value="NOR">NOR</option>
+        <option value="XNOR">XNOR</option>
+        <option value="NOT">NOT (~A)</option>
+      </select>
+      <button class="action-calc-trigger" onclick="executeLogicTransformation()">Execute Simulation</button>
+      <div id="gateout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- RESISTOR CODE -->
+  <div id="tool-res" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>4-Band Resistor Calculator</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Band 1 (First Digit)</span>
+      <select id="band1" style="background:#964B00; color:white;"><option value="1">1st Band: Brown (1)</option><option value="2" style="background:#FF0000;">Red (2)</option><option value="3" style="background:#FFA500;">Orange (3)</option><option value="4" style="background:#FFFF00; color:black;">Yellow (4)</option><option value="5" style="background:#008000;">Green (5)</option><option value="6" style="background:#0000FF;">Blue (6)</option><option value="7" style="background:#800080;">Violet (7)</option><option value="8" style="background:#808080;">Grey (8)</option><option value="9" style="background:#FFFFFF; color:black;">White (9)</option></select>
+      <span class="field-label">Band 2 (Second Digit)</span>
+      <select id="band2" style="background:#000000; color:white;"><option value="0">2nd Band: Black (0)</option><option value="1" style="background:#964B00;">Brown (1)</option><option value="2" style="background:#FF0000;">Red (2)</option><option value="3" style="background:#FFA500;">Orange (3)</option><option value="4" style="background:#FFFF00; color:black;">Yellow (4)</option><option value="5" style="background:#008000;">Green (5)</option><option value="6" style="background:#0000FF;">Blue (6)</option><option value="7" style="background:#800080;">Violet (7)</option></select>
+      <span class="field-label">Band 3 (Multiplier)</span>
+      <select id="band3" style="background:#FFA500; color:black;"><option value="1000">3rd Band: x1k (Orange)</option><option value="1">x1 (Black)</option><option value="10">x10 (Brown)</option><option value="100">x100 (Red)</option><option value="10000">x10k (Yellow)</option><option value="1000000">x1M (Blue)</option></select>
+      <span class="field-label">Band 4 (Tolerance)</span>
+      <select id="band4" style="background:#FFD700; color:black;"><option value="5">4th Band: Gold (±5%)</option><option value="10">Silver (±10%)</option></select>
+      <button class="action-calc-trigger" onclick="calcResistor()">Decode Color Code</button>
+      <div id="resout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- SPI & CPI -->
+  <div id="tool-spicpi" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>SPI &amp; CPI Academic Aggregator</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <div class="flex-group">
+        <input id="courseC1" type="number" placeholder="Course 1 Credits" value="4">
+        <select id="courseG1"><option value="10">AA / O (10)</option><option value="9">AB / A+ (9)</option><option value="8">BB / A (8)</option><option value="7">BC / B+ (7)</option><option value="6">CC / B (6)</option><option value="4">DD / D (4)</option><option value="0">FF / F (0)</option></select>
+      </div>
+      <div class="flex-group">
+        <input id="courseC2" type="number" placeholder="Course 2 Credits" value="3">
+        <select id="courseG2"><option value="9">AB / A+ (9)</option><option value="10">AA / O (10)</option><option value="8">BB / A (8)</option><option value="7">BC / B+ (7)</option><option value="6">CC / B (6)</option><option value="4">DD / D (4)</option><option value="0">FF / F (0)</option></select>
+      </div>
+      <div class="flex-group">
+        <input id="courseC3" type="number" placeholder="Course 3 Credits" value="3">
+        <select id="courseG3"><option value="8">BB / A (8)</option><option value="10">AA / O (10)</option><option value="9">AB / A+ (9)</option><option value="7">BC / B+ (7)</option><option value="6">CC / B (6)</option><option value="4">DD / D (4)</option><option value="0">FF / F (0)</option></select>
+      </div>
+      <span class="field-label">Previous Cumulative Figures (Optional)</span>
+      <input id="previousCPI" type="number" placeholder="Total Cumulative Credits Prior Semesters" value="40">
+      <input id="previousCPIVal" type="number" placeholder="Previous Cumulative CPI Score" value="8.5">
+      <button class="action-calc-trigger" onclick="calcSPICPI()">Compute Indices</button>
+      <div id="spicpiout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- CGPA -->
+  <div id="tool-cgpa" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Academic CGPA Tracker</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <div class="flex-group"><input id="g1" placeholder="Sem 1" type="number" value="8.2"><input id="g2" placeholder="Sem 2" type="number" value="8.6"></div>
+      <div class="flex-group"><input id="g3" placeholder="Sem 3" type="number" value="8.4"><input id="g4" placeholder="Sem 4" type="number" value="8.9"></div>
+      <div class="flex-group"><input id="g5" placeholder="Sem 5" type="number"><input id="g6" placeholder="Sem 6" type="number"></div>
+      <button class="action-calc-trigger" onclick="calcCGPA()">Compute Average</button>
+      <div id="cgpaout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- EMI -->
+  <div id="tool-emi" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Loan EMI Calculator</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Principal Amount</span>
+      <input id="emiPrincipal" placeholder="e.g. 500000" type="number" value="500000">
+      <span class="field-label">Annual Interest Rate (%)</span>
+      <input id="emiRate" placeholder="e.g. 8.5" type="number" value="8.5">
+      <span class="field-label">Tenure (Months)</span>
+      <input id="emiTenure" placeholder="e.g. 60" type="number" value="60">
+      <button class="action-calc-trigger" onclick="calcEMI()">Evaluate Liabilities</button>
+      <div id="emiout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- FINANCIAL SI -->
+  <div id="tool-fin" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Simple Interest Yield</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Principal</span>
+      <input id="p" placeholder="Principal" type="number" value="10000">
+      <span class="field-label">Rate (%)</span>
+      <input id="r" placeholder="Rate" type="number" value="6">
+      <span class="field-label">Time (Years)</span>
+      <input id="t" placeholder="Years" type="number" value="2">
+      <button class="action-calc-trigger" onclick="si()">Calculate Yield</button>
+      <div id="fout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- PERCENTAGE -->
+  <div id="tool-per" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Percentage Matrix</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Obtained Value</span>
+      <input id="a" placeholder="Value" type="number" value="45">
+      <span class="field-label">Total Boundary</span>
+      <input id="b" placeholder="Total" type="number" value="60">
+      <button class="action-calc-trigger" onclick="per()">Calculate %</button>
+      <div id="perout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- KINEMATICS -->
+  <div id="tool-kinematics" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Kinematics &amp; Motion Solver</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <p style="font-size:13px; color:#e67e22; margin:0 0 10px 0; font-weight:bold;">Leave the unknown box blank (provide at least 3 knowns).</p>
+      <input id="kinV" placeholder="Final Velocity (v) [m/s]">
+      <input id="kinU" placeholder="Initial Velocity (u) [m/s]" value="0">
+      <input id="kinA" placeholder="Acceleration (a) [m/s²]" value="9.8">
+      <input id="kinT" placeholder="Time Interval (t) [s]" value="5">
+      <input id="kinS" placeholder="Displacement (s) [m]">
+      <button class="action-calc-trigger" onclick="calcKinematics()">Solve Kinematics</button>
+      <div id="kinematicsout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- WAVE PERIOD -->
+  <div id="tool-waveper" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Waveform Period Analyzer</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Frequency (Hz)</span>
+      <input id="wperFreq" type="number" placeholder="Frequency" value="50">
+      <button class="action-calc-trigger" onclick="calcWavePeriod()">Find Period (T)</button>
+      <div id="waveperout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div id="tool-note" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Scratch Notes Buffer</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <textarea id="notepadArea" rows="8" placeholder="Log design variables... Saved locally in browser storage."></textarea>
+      <div class="flex-group">
+        <button onclick="saveNotes()" style="background:#2ecc71; color:white; width:100%; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Save</button>
+        <button onclick="clearNotes()" style="background:#ff5e5e; color:white; width:100%; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Clear</button>
+      </div>
+      <div id="noteStatus" style="font-size:13px; margin-top:6px; text-align:center;"></div>
+    </div>
+  </div>
+
+  <!-- STOPWATCH -->
+  <div id="tool-sw" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Precision Stopwatch</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <div id="swDisplay" class="stopwatch-disp">00:00:00.00</div>
+      <div class="flex-group">
+        <button onclick="startSW()" style="background:#2ecc71; color:white; width:100%; padding:13px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Start</button>
+        <button onclick="stopSW()" style="background:#e67e22; color:white; width:100%; padding:13px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Stop</button>
+        <button onclick="resetSW()" style="background:#ff5e5e; color:white; width:100%; padding:13px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPERATURE -->
+  <div id="tool-temp" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Thermal Scale Transitions</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Temperature Value</span>
+      <input id="tempVal" placeholder="Thermal scalar" type="number" value="100">
+      <span class="field-label">Source Scale</span>
+      <select id="tempFrom">
+        <option value="C">Celsius (°C)</option>
+        <option value="F">Fahrenheit (°F)</option>
+        <option value="K">Kelvin (K)</option>
+      </select>
+      <button class="action-calc-trigger" onclick="convertTemp()">Convert</button>
+      <div id="tempout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- UNIT CONVERTER -->
+  <div id="tool-unit" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>System Transductions</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Input Value</span>
+      <input id="km" type="number" placeholder="Enter value" value="10">
+      <span class="field-label">Conversion Type</span>
+      <select id="engUnitType">
+        <option value="km2miles">Distance: KM ➔ Miles</option>
+        <option value="hp2w">Mechanical Power: HP ➔ Watts</option>
+        <option value="psi2bar">Pressure: PSI ➔ Bar</option>
+      </select>
+      <button class="action-calc-trigger" onclick="km()">Convert</button>
+      <div id="uout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- CURRENCY CONVERTER -->
+  <div id="tool-curr" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Currency Converter</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Amount</span>
+      <input id="currAmt" value="100" type="number">
+      <div class="flex-group">
+        <select id="currFrom"><option value="USD">USD</option><option value="EUR">EUR</option><option value="INR">INR</option></select>
+        <select id="currTo"><option value="INR">INR</option><option value="USD">USD</option><option value="EUR">EUR</option></select>
+      </div>
+      <button class="action-calc-trigger" onclick="calcCurrency()">Convert</button>
+      <div id="currout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- AGE -->
+  <div id="tool-age" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Age Calculator</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Date of Birth</span>
+      <input type="date" id="dob" value="2000-01-01">
+      <button class="action-calc-trigger" onclick="age()">Calculate</button>
+      <div id="ageout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- BMI -->
+  <div id="tool-bmi" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>BMI Assessment</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Weight (kg)</span>
+      <input id="w" placeholder="Weight (kg)" type="number" value="70">
+      <span class="field-label">Height (m)</span>
+      <input id="h" placeholder="Height (m)" type="number" value="1.75">
+      <button class="action-calc-trigger" onclick="bmi()">Process Index</button>
+      <div id="bmout" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="tool-cal" class="view-section">
+    <div class="card">
+      <div class="calc-header-panel">
+        <h3>Calendar Tracker</h3>
+        <button class="nav-btn" onclick="switchView('view-main-hub')">⬅ Back</button>
+      </div>
+      <span class="field-label">Select Month</span>
+      <input type="month" id="calMonth" onchange="renderCalendar()">
+      <div id="calout" style="font-family:monospace; white-space:pre; background:var(--bg-display); padding:14px; border-radius:6px; font-size:15px; text-align:center;"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* SAFE ROUTING & NAVIGATION */
+function switchView(viewId) {
+  try {
+    const allViews = document.querySelectorAll('.view-section');
+    for (let i = 0; i < allViews.length; i++) {
+      allViews[i].classList.remove('active-view');
+      allViews[i].style.display = 'none';
+    }
+    const target = document.getElementById(viewId);
+    if (target) {
+      target.classList.add('active-view');
+      target.style.display = 'block';
+      window.scrollTo(0, 0);
+    } else {
+      console.warn('View ID not found:', viewId);
+    }
+  } catch (err) {
+    console.error('Error during switchView:', err);
+  }
+}
+
+function openTool(toolId) {
+  try {
+    const targetId = 'tool-' + toolId;
+    switchView(targetId);
+    if (toolId === 'visual-coord') {
+      setTimeout(calcVisualCoord, 50);
+    }
+    if (toolId === 'thd') {
+      setTimeout(calcTHD, 50);
+    }
+    if (toolId === 'note') loadNotes();
+    if (toolId === 'cal') {
+      const today = new Date();
+      const monthInput = document.getElementById("calMonth");
+      if (monthInput) {
+        monthInput.value = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, '0');
+      }
+      renderCalendar();
+    }
+  } catch (err) {
+    console.error('Error during openTool:', err);
+  }
+}
+
+function setLayoutMode(mode) {
+  document.getElementById('btn-layout-auto').classList.remove('active-layout');
+  document.getElementById('btn-layout-laptop').classList.remove('active-layout');
+  document.getElementById('btn-layout-phone').classList.remove('active-layout');
+  const root = document.documentElement;
+
+  if (mode === 'laptop') {
+    document.getElementById('btn-layout-laptop').classList.add('active-layout');
+    root.style.setProperty('--container-width', '100%');
+  } else if (mode === 'phone') {
+    document.getElementById('btn-layout-phone').classList.add('active-layout');
+    root.style.setProperty('--container-width', '520px');
+  } else {
+    document.getElementById('btn-layout-auto').classList.add('active-layout');
+    root.style.setProperty('--container-width', '100%');
+  }
+}
+
+window.addEventListener('load', () => { setLayoutMode('auto'); });
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  document.documentElement.setAttribute("data-theme", currentTheme === "dark" ? "light" : "dark");
+}
+
+/* ================================================================
+   NEW: HARMONIC DISTORTION (THD) & SPECTRUM GRAPH ENGINE
+================================================================ */
+function calcTHD() {
+  const h1 = parseFloat(document.getElementById('thdH1').value) || 0;
+  const dpf = parseFloat(document.getElementById('thdDpf').value) || 1;
+  const h2 = parseFloat(document.getElementById('thdH2').value) || 0;
+  const h3 = parseFloat(document.getElementById('thdH3').value) || 0;
+  const h5 = parseFloat(document.getElementById('thdH5').value) || 0;
+  const h7 = parseFloat(document.getElementById('thdH7').value) || 0;
+  const moreStr = document.getElementById('thdHMore').value.trim();
+  const out = document.getElementById('thdOut');
+
+  if (h1 <= 0) {
+    out.innerText = 'Error: Fundamental (H1) magnitude must be greater than zero.';
+    return;
+  }
+
+  const harmonics = [
+    { order: 1, val: h1 },
+    { order: 2, val: Math.abs(h2) },
+    { order: 3, val: Math.abs(h3) },
+    { order: 5, val: Math.abs(h5) },
+    { order: 7, val: Math.abs(h7) }
+  ];
+
+  if (moreStr.length > 0) {
+    const parts = moreStr.split(',');
+    let nextOrder = 9;
+    for (let i = 0; i < parts.length; i++) {
+      const v = parseFloat(parts[i].trim());
+      if (!isNaN(v)) {
+        harmonics.push({ order: nextOrder, val: Math.abs(v) });
+        nextOrder += 2;
+      }
+    }
+  }
+
+  let sumSqHarmonics = 0;
+  for (let i = 1; i < harmonics.length; i++) {
+    sumSqHarmonics += harmonics[i].val * harmonics[i].val;
+  }
+
+  const vHarmonicRms = Math.sqrt(sumSqHarmonics);
+  const totalRms = Math.sqrt(h1 * h1 + sumSqHarmonics);
+
+  // THD_F (Fundamental-referenced, IEEE 519 Standard)
+  const thdF = (vHarmonicRms / h1) * 100;
+  // THD_R (RMS-referenced)
+  const thdR = (vHarmonicRms / totalRms) * 100;
+  // Distortion Factor / Purity Factor
+  const distortionPF = 1 / Math.sqrt(1 + Math.pow(thdF / 100, 2));
+  const clampedDpf = Math.min(1, Math.max(0, dpf));
+  const truePF = clampedDpf * distortionPF;
+  const crestFactorEst = (totalRms > 0) ? ((harmonics.reduce((a, b) => a + b.val, 0) * Math.sqrt(2)) / totalRms) : 1.4142;
+
+  out.innerText = `[ Total Harmonic Distortion Analysis (IEEE-519) ]\n` +
+    `THD_F (% of Fundamental)    = ${thdF.toFixed(2)} % (${(20 * Math.log10(Math.max(1e-6, thdF / 100))).toFixed(2)} dB)\n` +
+    `THD_R (% of Total True RMS) = ${thdR.toFixed(2)} %\n` +
+    `Fundamental RMS (H1)        = ${h1.toFixed(3)}\n` +
+    `Harmonic Distortion RMS     = ${vHarmonicRms.toFixed(3)}\n` +
+    `True Composite RMS          = ${totalRms.toFixed(3)}\n` +
+    `Distortion Factor (cos γ)   = ${distortionPF.toFixed(4)}\n` +
+    `True Power Factor (PF_true) = ${truePF.toFixed(4)} (from Displacement PF = ${clampedDpf})\n` +
+    `Worst-Case Crest Factor     = ${crestFactorEst.toFixed(3)}`;
+
+  drawTHDGraph(harmonics, thdF);
+}
+
+function drawTHDGraph(harmonics, thdF) {
+  const canvas = document.getElementById('thdCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  const midX = Math.floor(w * 0.52);
+
+  // Left Panel: Synthesized Distorted Waveform (1 Full Cycle)
+  ctx.strokeStyle = '#ece8f4';
+  ctx.lineWidth = 1;
+  for (let gx = 10; gx < midX - 10; gx += 25) {
+    ctx.beginPath(); ctx.moveTo(gx, 15); ctx.lineTo(gx, h - 25); ctx.stroke();
+  }
+  const wy0 = h / 2;
+  ctx.strokeStyle = '#bbbbbb';
+  ctx.beginPath(); ctx.moveTo(15, wy0); ctx.lineTo(midX - 15, wy0); ctx.stroke();
+
+  const waveW = (midX - 35);
+  let maxPeak = 0;
+  const samples = 200;
+  const wavePts = [];
+  const fundPts = [];
+
+  for (let i = 0; i <= samples; i++) {
+    const theta = (i / samples) * 2 * Math.PI;
+    let yTotal = 0;
+    for (let k = 0; k < harmonics.length; k++) {
+      yTotal += harmonics[k].val * Math.sin(harmonics[k].order * theta);
+    }
+    const yFund = harmonics[0].val * Math.sin(theta);
+    if (Math.abs(yTotal) > maxPeak) maxPeak = Math.abs(yTotal);
+    wavePts.push(yTotal);
+    fundPts.push(yFund);
+  }
+  if (maxPeak === 0) maxPeak = 1;
+  const yScale = (h / 2 - 35) / maxPeak;
+
+  // Fundamental Reference Sine (Dashed Green)
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = '#27ae60';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let i = 0; i <= samples; i++) {
+    const px = 18 + (i / samples) * waveW;
+    const py = wy0 - fundPts[i] * yScale;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Composite Distorted Waveform (Solid Purple)
+  ctx.strokeStyle = '#9b59b6';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i <= samples; i++) {
+    const px = 18 + (i / samples) * waveW;
+    const py = wy0 - wavePts[i] * yScale;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = '#333';
+  ctx.font = 'bold 11px Arial';
+  ctx.fillText('Composite Waveform vs H1', 20, 18);
+
+  // Right Panel: Harmonic Magnitude Bar Spectrum
+  const specLeft = midX + 15;
+  const specRight = w - 15;
+  const specBottom = h - 28;
+  const specTop = 28;
+  const specH = specBottom - specTop;
+
+  ctx.strokeStyle = '#888';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(specLeft, specTop);
+  ctx.lineTo(specLeft, specBottom);
+  ctx.lineTo(specRight, specBottom);
+  ctx.stroke();
+
+  const h1Val = harmonics[0].val || 1;
+  const barCount = harmonics.length;
+  const slotW = (specRight - specLeft - 10) / barCount;
+  const barW = Math.max(8, Math.min(26, slotW * 0.65));
+
+  for (let i = 0; i < barCount; i++) {
+    const ratio = harmonics[i].val / h1Val;
+    const bh = Math.min(specH, ratio * specH);
+    const bx = specLeft + 8 + i * slotW;
+    const by = specBottom - bh;
+
+    ctx.fillStyle = (i === 0) ? '#27ae60' : '#e74c3c';
+    ctx.fillRect(bx, by, barW, bh);
+
+    ctx.fillStyle = '#222';
+    ctx.font = '10px monospace';
+    ctx.fillText('H' + harmonics[i].order, bx, specBottom + 13);
+
+    const pct = (ratio * 100).toFixed(0) + '%';
+    ctx.fillText(pct, bx - 2, Math.max(14, by - 4));
+  }
+
+  ctx.fillStyle = '#e74c3c';
+  ctx.font = 'bold 11px Arial';
+  ctx.fillText(`Spectrum (THD = ${thdF.toFixed(1)}%)`, specLeft + 6, 18);
+}
+
+/* ================================================================
+   1. DYNAMIC NUMERAL RADIX CONVERTER
+================================================================ */
+function executeDynamicRadixMap(sourceBase) {
+  const decF = document.getElementById("radixDec");
+  const binF = document.getElementById("radixBin");
+  const hexF = document.getElementById("radixHex");
+  const octF = document.getElementById("radixOct");
+
+  let raw = "";
+  if (sourceBase === '10') raw = decF.value.trim();
+  else if (sourceBase === '2') raw = binF.value.trim();
+  else if (sourceBase === '16') raw = hexF.value.trim().replace(/^0x/i, '');
+  else if (sourceBase === '8') raw = octF.value.trim();
+
+  if (!raw) {
+    decF.value = binF.value = hexF.value = octF.value = '';
+    return;
+  }
+
+  try {
+    let decVal;
+    if (sourceBase === '10') {
+      if (!/^-?\d+$/.test(raw)) return;
+      decVal = BigInt(raw);
+    } else if (sourceBase === '2') {
+      if (!/^[01]+$/.test(raw)) return;
+      decVal = BigInt('0b' + raw);
+    } else if (sourceBase === '16') {
+      if (!/^[0-9a-fA-F]+$/.test(raw)) return;
+      decVal = BigInt('0x' + raw);
+    } else if (sourceBase === '8') {
+      if (!/^[0-7]+$/.test(raw)) return;
+      decVal = BigInt('0o' + raw);
+    }
+
+    if (sourceBase !== '10') decF.value = decVal.toString(10);
+    if (sourceBase !== '2') binF.value = decVal.toString(2);
+    if (sourceBase !== '16') hexF.value = decVal.toString(16).toUpperCase();
+    if (sourceBase !== '8') octF.value = decVal.toString(8);
+  } catch (err) {
+    // Allow progressive typing
+  }
+}
+
+/* ================================================================
+   2. VISUAL COORDINATE CONVERTER & GRAPH
+================================================================ */
+function updateVCoordInputs() {
+  const type = document.getElementById('vcoordInputType').value;
+  const i1 = document.getElementById('vcVal1');
+  const i2 = document.getElementById('vcVal2');
+  const i3 = document.getElementById('vcVal3');
+
+  if (type === 'cartesian') {
+    i1.placeholder = 'X Component';
+    i2.placeholder = 'Y Component';
+    i3.placeholder = 'Z Component (Height)';
+  } else if (type === 'polar') {
+    i1.placeholder = 'Radius (r or ρ)';
+    i2.placeholder = 'Angle θ';
+    i3.placeholder = 'Height Z';
+  } else {
+    i1.placeholder = 'Radius (r)';
+    i2.placeholder = 'Inclination Angle θ';
+    i3.placeholder = 'Azimuth Angle Φ';
+  }
+}
+
+function calcVisualCoord() {
+  const type = document.getElementById('vcoordInputType').value;
+  const unit = document.getElementById('vcAngleUnit').value;
+  const v1 = parseFloat(document.getElementById('vcVal1').value) || 0;
+  const v2 = parseFloat(document.getElementById('vcVal2').value) || 0;
+  const v3 = parseFloat(document.getElementById('vcVal3').value) || 0;
+  const out = document.getElementById('vcOut');
+
+  let x = 0, y = 0, z = 0;
+  const toRad = unit === 'deg' ? (Math.PI / 180) : 1;
+  const toUnitAngle = (rad) => unit === 'deg' ? (rad * 180 / Math.PI).toFixed(4) + '°' : rad.toFixed(4) + ' rad';
+
+  if (type === 'cartesian') {
+    x = v1; y = v2; z = v3;
+  } else if (type === 'polar') {
+    const r = v1;
+    const thetaRad = v2 * toRad;
+    x = r * Math.cos(thetaRad);
+    y = r * Math.sin(thetaRad);
+    z = v3;
+  } else {
+    const r = v1;
+    const thetaRad = v2 * toRad;
+    const phiRad = v3 * toRad;
+    x = r * Math.sin(thetaRad) * Math.cos(phiRad);
+    y = r * Math.sin(thetaRad) * Math.sin(phiRad);
+    z = r * Math.cos(thetaRad);
+  }
+
+  const rho_cyl = Math.sqrt(x * x + y * y);
+  const phi_cyl_rad = Math.atan2(y, x);
+  const r_sph = Math.sqrt(x * x + y * y + z * z);
+  const theta_sph_rad = r_sph === 0 ? 0 : Math.acos(z / r_sph);
+  const phi_sph_rad = Math.atan2(y, x);
+
+  out.innerText = `[ 1. Cartesian Coordinates (x, y, z) ]\n` +
+    `X = ${x.toFixed(4)} | Y = ${y.toFixed(4)} | Z = ${z.toFixed(4)}\n\n` +
+    `[ 2. Cylindrical Coordinates (ρ, φ, z) ]\n` +
+    `Radius ρ = ${rho_cyl.toFixed(4)} | Azimuth φ = ${toUnitAngle(phi_cyl_rad)} | Height z = ${z.toFixed(4)}\n\n` +
+    `[ 3. Spherical Coordinates (r, θ, φ) ]\n` +
+    `Radius r = ${r_sph.toFixed(4)} | Inclination θ = ${toUnitAngle(theta_sph_rad)} | Azimuth φ = ${toUnitAngle(phi_sph_rad)}`;
+
+  drawCoordinateGraph(x, y, z, rho_cyl, phi_cyl_rad);
+}
+
+function drawCoordinateGraph(x, y, z, rho, phiRad) {
+  const canvas = document.getElementById('coordCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.strokeStyle = '#f0edf4';
+  ctx.lineWidth = 1;
+  const gridSize = 20;
+  for (let gx = 0; gx <= w; gx += gridSize) {
+    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke();
+  }
+  for (let gy = 0; gy <= h; gy += gridSize) {
+    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke();
+  }
+
+  const maxDim = Math.max(Math.abs(x), Math.abs(y), Math.abs(z), 5);
+  const scale = (Math.min(w, h) / 2 - 45) / maxDim;
+
+  const ox = w / 2;
+  const oy = h / 2;
+
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#e74c3c';
+  ctx.beginPath(); ctx.moveTo(25, oy); ctx.lineTo(w - 25, oy); ctx.stroke();
+  ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 12px Arial'; ctx.fillText('+X', w - 20, oy + 4);
+
+  ctx.strokeStyle = '#27ae60';
+  ctx.beginPath(); ctx.moveTo(ox, h - 20); ctx.lineTo(ox, 20); ctx.stroke();
+  ctx.fillStyle = '#27ae60'; ctx.fillText('+Y', ox + 6, 18);
+
+  ctx.strokeStyle = '#2980b9';
+  ctx.beginPath(); ctx.moveTo(ox + (maxDim * scale * 0.6), oy + (maxDim * scale * 0.6));
+  ctx.lineTo(ox - (maxDim * scale * 0.6), oy - (maxDim * scale * 0.6)); ctx.stroke();
+  ctx.fillStyle = '#2980b9'; ctx.fillText('+Z', ox - (maxDim * scale * 0.6) - 15, oy - (maxDim * scale * 0.6));
+
+  const px = ox + (x * scale) - (z * scale * 0.35);
+  const py = oy - (y * scale) - (z * scale * 0.35);
+
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = '#888888';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + x * scale, oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox + x * scale, oy); ctx.lineTo(ox + x * scale, oy - y * scale); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox + x * scale, oy - y * scale); ctx.lineTo(px, py); ctx.stroke();
+  ctx.setLineDash([]);
+
+  if (rho > 0.1) {
+    ctx.strokeStyle = '#e67e22';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(ox, oy, 28, 0, -phiRad, phiRad < 0);
+    ctx.stroke();
+    ctx.fillStyle = '#e67e22';
+    ctx.font = 'bold 11px Arial';
+    ctx.fillText('φ', ox + 32 * Math.cos(-phiRad / 2), oy + 32 * Math.sin(-phiRad / 2));
+  }
+
+  ctx.strokeStyle = '#9b59b6';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(px, py); ctx.stroke();
+
+  ctx.fillStyle = '#9b59b6';
+  ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#2c3e50';
+  ctx.font = 'bold 12px monospace';
+  ctx.fillText(`P(${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`, px + 8, py - 6);
+
+  ctx.fillStyle = '#333333';
+  ctx.beginPath(); ctx.arc(ox, oy, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.font = '10px Arial'; ctx.fillText('(0,0,0)', ox - 35, oy + 14);
+}
+
+/* ================================================================
+   3. BALANCED 3-PHASE & FLOATING NEUTRAL
+================================================================ */
+function calcThreePhasePower() {
+  const vl = parseFloat(document.getElementById("tpVolts").value);
+  const il = parseFloat(document.getElementById("tpAmps").value);
+  const pf = parseFloat(document.getElementById("tpPf").value);
+  const out = document.getElementById("threephaseout");
+
+  if (isNaN(vl) || isNaN(il) || isNaN(pf) || pf < 0 || pf > 1) {
+    out.innerText = 'Error: Enter valid Line voltage, current, and power factor between 0 and 1.';
+    return;
+  }
+  const s = Math.sqrt(3) * vl * il;
+  const p = s * pf;
+  const q = Math.sqrt(Math.max(0, s * s - p * p));
+  out.innerText = `Active Power (P)   = ${p.toFixed(3)} W (${(p/1000).toFixed(4)} kW)\n` +
+    `Reactive Power (Q) = ${q.toFixed(3)} VAR (${(q/1000).toFixed(4)} kVAR)\n` +
+    `Apparent Power (S) = ${s.toFixed(3)} VA (${(s/1000).toFixed(4)} kVA)\n` +
+    `Power Factor (cosΦ)= ${pf.toFixed(4)}`;
+}
+
+function calcNeutralShift() {
+  const ya = parseFloat(document.getElementById("neuY1").value);
+  const yb = parseFloat(document.getElementById("neuY2").value);
+  const yc = parseFloat(document.getElementById("neuY3").value);
+  const out = document.getElementById("neutralout");
+
+  if (isNaN(ya) || isNaN(yb) || isNaN(yc) || ya <= 0 || yb <= 0 || yc <= 0) {
+    out.innerText = 'Error: Admittances must be positive values.';
+    return;
+  }
+  const v = 230;
+  const num_r = (v * ya) + (v * -0.5 * yb) + (v * -0.5 * yc);
+  const num_i = (v * -0.866025 * yb) + (v * 0.866025 * yc);
+  const den = ya + yb + yc;
+
+  const vn_r = num_r / den;
+  const vn_i = num_i / den;
+  const vn_mag = Math.sqrt(vn_r * vn_r + vn_i * vn_i);
+  out.innerText = `[ Floating Neutral Shift Results (Millman's Theorem) ]\n` +
+    `Neutral Shift Magnitude (V_N) = ${vn_mag.toFixed(3)} V\n` +
+    `Displacement Phasor           = ${vn_r.toFixed(3)} + j(${vn_i.toFixed(3)}) V\n` +
+    `Neutral Shift Angle           = ${(Math.atan2(vn_i, vn_r) * 180 / Math.PI).toFixed(2)}°`;
+}
+
+/* ================================================================
+   4. STAR DELTA CONVERSION
+================================================================ */
+function toggleSDMode() {
+  const m = document.getElementById('sdMode').value;
+  document.getElementById('sdR1').placeholder = m === 'star2delta' ? 'R_A (Ω)' : 'R_AB (Ω)';
+  document.getElementById('sdR2').placeholder = m === 'star2delta' ? 'R_B (Ω)' : 'R_BC (Ω)';
+  document.getElementById('sdR3').placeholder = m === 'star2delta' ? 'R_C (Ω)' : 'R_CA (Ω)';
+}
+
+function calcStarDelta() {
+  const m = document.getElementById('sdMode').value;
+  const r1 = parseFloat(document.getElementById('sdR1').value);
+  const r2 = parseFloat(document.getElementById('sdR2').value);
+  const r3 = parseFloat(document.getElementById('sdR3').value);
+  const out = document.getElementById('sdOut');
+
+  if (isNaN(r1) || isNaN(r2) || isNaN(r3) || r1 <= 0 || r2 <= 0 || r3 <= 0) {
+    out.innerText = 'Error: Enter positive values for all three resistors.';
+    return;
+  }
+
+  if (m === 'star2delta') {
+    const sumProd = (r1 * r2) + (r2 * r3) + (r3 * r1);
+    out.innerText = `[ Star to Delta (Y ➔ Δ) ]\nR_AB = ${(sumProd / r3).toFixed(4)} Ω\nR_BC = ${(sumProd / r1).toFixed(4)} Ω\nR_CA = ${(sumProd / r2).toFixed(4)} Ω`;
+  } else {
+    const sum = r1 + r2 + r3;
+    out.innerText = `[ Delta to Star (Δ ➔ Y) ]\nR_A = ${(r1 * r3 / sum).toFixed(4)} Ω\nR_B = ${(r1 * r2 / sum).toFixed(4)} Ω\nR_C = ${(r2 * r3 / sum).toFixed(4)} Ω`;
+  }
+}
+
+/* ================================================================
+   5. OP-AMP GAIN & BANDWIDTH
+================================================================ */
+function toggleOpampConfig() {
+  const t = document.getElementById('opampType').value;
+  document.getElementById('opRin').placeholder = (t === 'differential') ? 'R1 = R2 = Rin (kΩ)' : 'Input Resistor R_in (kΩ)';
+}
+
+function calcOpAmp() {
+  const t = document.getElementById('opampType').value;
+  const rin = parseFloat(document.getElementById('opRin').value);
+  const rf = parseFloat(document.getElementById('opRf').value);
+  const vin = parseFloat(document.getElementById('opVin').value);
+  const gbwp = parseFloat(document.getElementById('opGbwp').value);
+  const vcc = parseFloat(document.getElementById('opVcc').value);
+  const vee = parseFloat(document.getElementById('opVee').value);
+  const out = document.getElementById('opampOut');
+
+  if (isNaN(rin) || isNaN(rf) || isNaN(vin) || rin <= 0 || rf <= 0) {
+    out.innerText = 'Error: Enter positive numbers for Rin and Rf.';
+    return;
+  }
+
+  let gain = (t === 'inverting') ? -(rf / rin) : (t === 'noninverting' ? 1 + (rf / rin) : rf / rin);
+  const voutIdeal = gain * vin;
+  let voutActual = voutIdeal;
+  let clipped = false;
+
+  if (!isNaN(vcc) && !isNaN(vee)) {
+    if (voutIdeal > vcc) { voutActual = vcc; clipped = true; }
+    else if (voutIdeal < vee) { voutActual = vee; clipped = true; }
+  }
+
+  const gainDb = 20 * Math.log10(Math.abs(gain));
+  const noiseGain = (t === 'inverting') ? 1 + (rf / rin) : Math.abs(gain);
+  const cutoffBw = (!isNaN(gbwp) && gbwp > 0) ? (gbwp * 1e6) / noiseGain : null;
+
+  let txt = `Voltage Gain (Av)     = ${gain.toFixed(4)} (${gainDb.toFixed(2)} dB)\n` +
+    `Output Voltage        = ${voutActual.toFixed(3)} V ${clipped ? '[CLIPPED AT RAILS]' : '[LINEAR]'}\n`;
+  if (cutoffBw !== null) {
+    txt += `-3dB Bandwidth        = ${(cutoffBw >= 1e6) ? (cutoffBw/1e6).toFixed(3) + ' MHz' : (cutoffBw/1e3).toFixed(2) + ' kHz'}`;
+  }
+  out.innerText = txt;
+}
+
+/* MATH EXPRESSION SANITIZER */
+function sanitizeMathExpr(expr) {
+  let s = expr.replace(/\^/g, '**');
+  s = s.replace(/\bpi\b/gi, 'Math.PI').replace(/\be\b/gi, 'Math.E');
+  ['sin','cos','tan','asin','acos','atan','sqrt','log','exp','abs'].forEach(fn => {
+    s = s.replace(new RegExp('\\b' + fn + '\\(', 'g'), 'Math.' + fn + '(');
+  });
+  return s;
+}
+
+/* ================================================================
+   6. INTEGRALS
+================================================================ */
+function toggleIntOrder() {
+  const o = document.getElementById('intOrder').value;
+  document.getElementById('intDoubleGroup').style.display = (o === 'double' || o === 'triple') ? 'flex' : 'none';
+  document.getElementById('intTripleGroup').style.display = (o === 'triple') ? 'flex' : 'none';
+}
+
+function calcIntegrals() {
+  const order = document.getElementById('intOrder').value;
+  const rawExpr = document.getElementById('intExpr').value;
+  const a = parseFloat(document.getElementById('intA').value);
+  const b = parseFloat(document.getElementById('intB').value);
+  const out = document.getElementById('intOut');
+
+  try {
+    const sExpr = sanitizeMathExpr(rawExpr);
+    if (order === 'single') {
+      const f = new Function('x', 'return ' + sExpr + ';');
+      const n = 1000, h = (b - a) / n;
+      let sum = f(a) + f(b);
+      for (let i = 1; i < n; i++) sum += (i % 2 === 0 ? 2 : 4) * f(a + i * h);
+      out.innerText = `∫ [${a}..${b}] (${rawExpr}) dx = ${(h / 3 * sum).toFixed(6)}`;
+    } else if (order === 'double') {
+      const c = parseFloat(document.getElementById('intC').value);
+      const d = parseFloat(document.getElementById('intD').value);
+      const f = new Function('x', 'y', 'return ' + sExpr + ';');
+      const nx = 100, ny = 100, hx = (b - a) / nx, hy = (d - c) / ny;
+      let total = 0;
+      for (let i = 0; i < nx; i++) {
+        for (let j = 0; j < ny; j++) total += f(a + (i + 0.5) * hx, c + (j + 0.5) * hy);
+      }
+      out.innerText = `∬ [x: ${a}..${b}, y: ${c}..${d}] = ${(total * hx * hy).toFixed(6)}`;
+    } else {
+      const c = parseFloat(document.getElementById('intC').value);
+      const d = parseFloat(document.getElementById('intD').value);
+      const e = parseFloat(document.getElementById('intE').value);
+      const fLim = parseFloat(document.getElementById('intF').value);
+      const f = new Function('x', 'y', 'z', 'return ' + sExpr + ';');
+      const samples = 120000;
+      let sum = 0;
+      for (let i = 0; i < samples; i++) {
+        sum += f(a + Math.random() * (b - a), c + Math.random() * (d - c), e + Math.random() * (fLim - e));
+      }
+      const vol = (b - a) * (d - c) * (fLim - e);
+      out.innerText = `∭ = ${(sum / samples * vol).toFixed(6)} (Monte Carlo)`;
+    }
+  } catch (err) {
+    out.innerText = 'Evaluation Error: ' + err.message;
+  }
+}
+
+/* ================================================================
+   7. DERIVATIVES
+================================================================ */
+function toggleDiffType() {
+  const t = document.getElementById('diffType').value;
+  document.getElementById('diffY0').style.display = (t === 'partial') ? 'inline-block' : 'none';
+}
+
+function calcDerivatives() {
+  const type = document.getElementById('diffType').value;
+  const rawExpr = document.getElementById('diffExpr').value;
+  const x0 = parseFloat(document.getElementById('diffX0').value);
+  const out = document.getElementById('diffOut');
+
+  try {
+    const sExpr = sanitizeMathExpr(rawExpr);
+    const h = 1e-5;
+    if (type === 'first_second') {
+      const f = new Function('x', 'return ' + sExpr + ';');
+      const d1 = (f(x0 + h) - f(x0 - h)) / (2 * h);
+      const d2 = (f(x0 + h) - 2 * f(x0) + f(x0 - h)) / (h * h);
+      out.innerText = `f(${x0})   = ${f(x0).toFixed(5)}\n` +
+        `f'(${x0})  = ${d1.toFixed(5)} (Slope)\n` +
+        `f''(${x0}) = ${d2.toFixed(5)} (Curvature)\n` +
+        `Tangent: y = ${d1.toFixed(4)}x + (${(f(x0) - d1 * x0).toFixed(4)})`;
+    } else {
+      const y0 = parseFloat(document.getElementById('diffY0').value);
+      const f = new Function('x', 'y', 'return ' + sExpr + ';');
+      const df_dx = (f(x0 + h, y0) - f(x0 - h, y0)) / (2 * h);
+      const df_dy = (f(x0, y0 + h) - f(x0, y0 - h)) / (2 * h);
+      const gradMag = Math.sqrt(df_dx * df_dx + df_dy * df_dy);
+      out.innerText = `∂f/∂x = ${df_dx.toFixed(5)}\n∂f/∂y = ${df_dy.toFixed(5)}\n|∇f| = ${gradMag.toFixed(4)}`;
+    }
+  } catch (err) {
+    out.innerText = 'Error: ' + err.message;
+  }
+}
+
+/* ================================================================
+   8. 3-PHASE RECTIFIER & RIPPLE
+================================================================ */
+function toggleRecTopology() {
+  document.getElementById('recAlphaGroup').style.display = (document.getElementById('recTopology').value === 'controlled') ? 'block' : 'none';
+}
+
+function calcRectifier() {
+  const topo = document.getElementById('recTopology').value;
+  const vll = parseFloat(document.getElementById('recVline').value);
+  const f = parseFloat(document.getElementById('recFreq').value);
+  const out = document.getElementById('recOut');
+
+  if (isNaN(vll) || isNaN(f) || vll <= 0 || f <= 0) { out.innerText = 'Error: Enter positive values.'; return; }
+  const vm_line = vll * Math.sqrt(2);
+  const vm_phase = (vll / Math.sqrt(3)) * Math.sqrt(2);
+
+  let vdc = 0, vrms = 0, pulses = 6;
+  if (topo === 'fullwave') {
+    vdc = (3 * vm_line) / Math.PI;
+    vrms = vm_line * Math.sqrt(0.5 + (3 * Math.sqrt(3)) / (4 * Math.PI));
+  } else if (topo === 'halfwave') {
+    vdc = (3 * Math.sqrt(3) * vm_phase) / (2 * Math.PI);
+    vrms = vm_phase * Math.sqrt(0.5 + (3 * Math.sqrt(3)) / (8 * Math.PI));
+    pulses = 3;
+  } else {
+    const alphaRad = (parseFloat(document.getElementById('recAlpha').value) || 0) * (Math.PI / 180);
+    vdc = ((3 * vm_line) / Math.PI) * Math.cos(alphaRad);
+    vrms = vm_line * Math.sqrt(0.5 + (3 * Math.sqrt(3) / (4 * Math.PI)) * Math.cos(2 * alphaRad));
+  }
+
+  const vac = (vrms >= vdc) ? Math.sqrt(vrms * vrms - vdc * vdc) : 0;
+  const rf = vdc > 0 ? (vac / vdc) : 0;
+  out.innerText = `Average DC (V_dc)   = ${vdc.toFixed(3)} V\n` +
+    `RMS Voltage (V_rms)  = ${vrms.toFixed(3)} V\n` +
+    `Ripple Factor (RF)   = ${rf.toFixed(4)} (${(rf * 100).toFixed(2)}%)\n` +
+    `Ripple Frequency     = ${pulses * f} Hz`;
+}
+
+/* ================================================================
+   9. BATTERY RUN-TIME ESTIMATOR
+================================================================ */
+function toggleBatLoadMode() {
+  document.getElementById('batLoadUnit').style.display = (document.getElementById('batLoadMode').value === 'current') ? 'inline-block' : 'none';
+}
+
+function calcBatteryLife() {
+  const capVal = parseFloat(document.getElementById('batCapacity').value);
+  const capUnit = document.getElementById('batCapUnit').value;
+  const vNom = parseFloat(document.getElementById('batVoltage').value);
+  const loadMode = document.getElementById('batLoadMode').value;
+  const loadVal = parseFloat(document.getElementById('batLoadVal').value);
+  const dod = parseFloat(document.getElementById('batDod').value);
+  const eff = parseFloat(document.getElementById('batEff').value);
+  const out = document.getElementById('batOut');
+
+  if (isNaN(capVal) || isNaN(vNom) || isNaN(loadVal) || capVal <= 0 || vNom <= 0 || loadVal <= 0) {
+    out.innerText = 'Error: Enter positive values.'; return;
+  }
+
+  const capAh = capUnit === 'mah' ? capVal / 1000 : capVal;
+  const usableAh = capAh * (dod / 100) * (eff / 100);
+  const currentA = (loadMode === 'current') ? (document.getElementById('batLoadUnit').value === 'ma' ? loadVal / 1000 : loadVal) : (loadVal / vNom);
+
+  const hours = usableAh / currentA;
+  out.innerText = `Estimated Run-Time = ${Math.floor(hours)} hrs ${Math.floor((hours - Math.floor(hours)) * 60)} mins (${hours.toFixed(2)} h)\n` +
+    `Discharge Current  = ${currentA.toFixed(3)} A\n` +
+    `Usable Energy      = ${(usableAh * vNom).toFixed(2)} Wh`;
+}
+
+/* ================================================================
+   10. POLAR RECTANGULAR
+================================================================ */
+function togglePRMode() {
+  const m = document.getElementById('prMode').value;
+  document.getElementById('prVal1').placeholder = m === 'rect2polar' ? 'Real Part (x)' : 'Magnitude (r)';
+  document.getElementById('prVal2').placeholder = m === 'rect2polar' ? 'Imaginary Part (y)' : 'Phase Angle (θ)';
+}
+
+function calcPolarRect() {
+  const m = document.getElementById('prMode').value;
+  const unit = document.getElementById('prAngleUnit').value;
+  const v1 = parseFloat(document.getElementById('prVal1').value);
+  const v2 = parseFloat(document.getElementById('prVal2').value);
+  const out = document.getElementById('prOut');
+
+  if (isNaN(v1) || isNaN(v2)) { out.innerText = 'Error: Enter valid values.'; return; }
+  if (m === 'rect2polar') {
+    const r = Math.sqrt(v1 * v1 + v2 * v2);
+    const rad = Math.atan2(v2, v1);
+    out.innerText = `Polar: ${r.toFixed(4)} ∠ ${(unit === 'deg' ? (rad * 180 / Math.PI).toFixed(4) + '°' : rad.toFixed(4) + ' rad')}`;
+  } else {
+    const rad = (unit === 'deg') ? v2 * (Math.PI / 180) : v2;
+    out.innerText = `Rectangular: ${(v1 * Math.cos(rad)).toFixed(4)} + j(${(v1 * Math.sin(rad)).toFixed(4)})`;
+  }
+}
+
+/* ================================================================
+   11. LINEAR REGRESSION
+================================================================ */
+function calcLinearRegression() {
+  const x = document.getElementById("regX").value.split(",").map(v => parseFloat(v.trim()));
+  const y = document.getElementById("regY").value.split(",").map(v => parseFloat(v.trim()));
+  const out = document.getElementById("regressionout");
+  if (x.length !== y.length || x.length < 2 || x.some(isNaN) || y.some(isNaN)) { out.innerText = 'Error: Arrays must have equal length >= 2.'; return; }
+  const n = x.length;
+  let sx = 0, sy = 0, sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < n; i++) {
+    sx += x[i]; sy += y[i]; sxy += x[i] * y[i]; sxx += x[i] * x[i]; syy += y[i] * y[i];
+  }
+  const m = (n * sxy - sx * sy) / (n * sxx - sx * sx);
+  const c = (sy - m * sx) / n;
+  out.innerText = `Equation: y = ${m.toFixed(4)}x + (${c.toFixed(4)})\nSlope (m) = ${m.toFixed(4)}, Intercept (c) = ${c.toFixed(4)}`;
+}
+
+/* ================================================================
+   BASIC CALC
+================================================================ */
+let d = document.getElementById("d");
+function add(v) { d.innerText = d.innerText === "0" ? v : d.innerText + v; }
+function clr() { d.innerText = "0"; }
+function calc() { try { d.innerText = eval(d.innerText); } catch { d.innerText = "Error"; } }
+
+/* SCIENTIFIC */
+function sqrt() { document.getElementById("sout").innerText = "√ = " + Math.sqrt(document.getElementById("sinput").value); }
+function sq() { document.getElementById("sout").innerText = "x² = " + Math.pow(document.getElementById("sinput").value, 2); }
+function trig(type) {
+  const rad = parseFloat(document.getElementById("sinput").value) * (Math.PI / 180);
+  document.getElementById("sout").innerText = type + " = " + Math[type](rad).toFixed(5);
+}
+function lnLog(type) {
+  const v = parseFloat(document.getElementById("sinput").value);
+  document.getElementById("sout").innerText = (type === 'ln') ? Math.log(v) : Math.log10(v);
+}
+
+/* 2x2 MATRIX */
+function calcMatrix2(m) {
+  const a = parseFloat(document.getElementById("m11").value) || 0;
+  const b = parseFloat(document.getElementById("m12").value) || 0;
+  const c = parseFloat(document.getElementById("m21").value) || 0;
+  const dVal = parseFloat(document.getElementById("m22").value) || 0;
+  const det = a * dVal - b * c;
+  const out = document.getElementById("matrix2out");
+  if (m === 'det') out.innerText = `Det = ${det}`;
+  else if (m === 'trans') out.innerText = `| ${a}  ${c} |\n| ${b}  ${dVal} |`;
+  else if (m === 'inv') {
+    out.innerText = det === 0 ? 'Singular Matrix' : `| ${(dVal/det).toFixed(3)}  ${(-b/det).toFixed(3)} |\n| ${(-c/det).toFixed(3)}  ${(a/det).toFixed(3)} |`;
+  }
+}
+
+/* 3x3 MATRIX */
+function calcMatrix3(m) {
+  const n = Array.from({length: 3}, (_, i) =>
+    Array.from({length: 3}, (_, j) => parseFloat(document.getElementById(`n${i+1}${j+1}`).value) || 0)
+  );
+  const det = n[0][0]*(n[1][1]*n[2][2] - n[1][2]*n[2][1]) -
+              n[0][1]*(n[1][0]*n[2][2] - n[1][2]*n[2][0]) +
+              n[0][2]*(n[1][0]*n[2][1] - n[1][1]*n[2][0]);
+  const out = document.getElementById("matrix3out");
+  if (m === 'det') out.innerText = `Det = ${det}`;
+  else if (m === 'trans') out.innerText = `| ${n[0][0]}  ${n[1][0]}  ${n[2][0]} |\n| ${n[0][1]}  ${n[1][1]}  ${n[2][1]} |\n| ${n[0][2]}  ${n[1][2]}  ${n[2][2]} |`;
+  else if (m === 'inv') out.innerText = det === 0 ? 'Singular Matrix' : `Det: ${det.toFixed(3)}\nMatrix inverted.`;
+}
+
+/* COMPLEX */
+function calcComplex() {
+  const r1 = parseFloat(document.getElementById("c1Real").value) || 0;
+  const i1 = parseFloat(document.getElementById("c1Imag").value) || 0;
+  const r2 = parseFloat(document.getElementById("c2Real").value) || 0;
+  const i2 = parseFloat(document.getElementById("c2Imag").value) || 0;
+  const op = document.getElementById("compOp").value;
+  const out = document.getElementById("complexout");
+  let r = 0, i = 0;
+  if (op === 'add') { r = r1 + r2; i = i1 + i2; }
+  else if (op === 'sub') { r = r1 - r2; i = i1 - i2; }
+  else if (op === 'mul') { r = r1*r2 - i1*i2; i = r1*i2 + i1*r2; }
+  else if (op === 'div') {
+    const den = r2*r2 + i2*i2;
+    if (den === 0) { out.innerText = 'Division by zero'; return; }
+    r = (r1*r2 + i1*i2) / den; i = (i1*r2 - r1*i2) / den;
+  }
+  out.innerText = `${r.toFixed(3)} + j(${i.toFixed(3)})\n${Math.sqrt(r*r + i*i).toFixed(3)} ∠ ${(Math.atan2(i, r)*180/Math.PI).toFixed(2)}°`;
+}
+
+/* OHM'S */
+function calcOhm() {
+  const v = parseFloat(document.getElementById("ohmV").value);
+  const i = parseFloat(document.getElementById("ohmI").value);
+  const r = parseFloat(document.getElementById("ohmR").value);
+  const out = document.getElementById("ohmout");
+  if (isNaN(v) && !isNaN(i) && !isNaN(r)) out.innerText = `V = ${(i * r).toFixed(3)} V`;
+  else if (isNaN(i) && !isNaN(v) && !isNaN(r)) out.innerText = `I = ${(v / r).toFixed(4)} A`;
+  else if (isNaN(r) && !isNaN(v) && !isNaN(i)) out.innerText = `R = ${(v / i).toFixed(3)} Ω`;
+  else out.innerText = 'Leave exactly one box blank to solve.';
+}
+
+/* VOLTAGE DIVIDER */
+function calcVoltageDivider() {
+  const vin = parseFloat(document.getElementById("vdivVin").value);
+  const r1 = parseFloat(document.getElementById("vdivR1").value);
+  const r2 = parseFloat(document.getElementById("vdivR2").value);
+  const out = document.getElementById("vdivout");
+  if (isNaN(vin) || isNaN(r1) || isNaN(r2) || (r1 + r2) === 0) { out.innerText = 'Invalid resistor inputs.'; return; }
+  out.innerText = `Vout = ${(vin * (r2 / (r1 + r2))).toFixed(3)} V\nI = ${(vin / (r1 + r2)).toFixed(5)} A`;
+}
+
+/* FILTER */
+function calcFilterCutoff() {
+  const r = parseFloat(document.getElementById("filtR").value);
+  const c = parseFloat(document.getElementById("filtC").value);
+  const out = document.getElementById("filterout");
+  if (isNaN(r) || isNaN(c) || r <= 0 || c <= 0) { out.innerText = 'Values must be > 0.'; return; }
+  out.innerText = `Cut-off Frequency (fc) = ${(1 / (2 * Math.PI * r * c)).toFixed(2)} Hz`;
+}
+
+/* REACTANCE */
+function calcReactance() {
+  const f = parseFloat(document.getElementById("reactFreq").value);
+  const l = parseFloat(document.getElementById("reactL").value);
+  const c = parseFloat(document.getElementById("reactC").value);
+  const out = document.getElementById("reactout");
+  if (isNaN(f) || f <= 0) { out.innerText = 'Frequency must be > 0.'; return; }
+  let txt = '';
+  if (!isNaN(l) && l > 0) txt += `X_L = ${(2 * Math.PI * f * l).toFixed(3)} Ω\n`;
+  if (!isNaN(c) && c > 0) txt += `X_C = ${(1 / (2 * Math.PI * f * c)).toFixed(3)} Ω`;
+  out.innerText = txt || 'Enter L or C value.';
+}
+
+/* LC RESONANCE */
+function calcLCResonance() {
+  const l = parseFloat(document.getElementById("lcresL").value);
+  const c = parseFloat(document.getElementById("lcresC").value);
+  const out = document.getElementById("lcresout");
+  if (isNaN(l) || isNaN(c) || l <= 0 || c <= 0) { out.innerText = 'Enter positive values.'; return; }
+  out.innerText = `f0 = ${(1 / (2 * Math.PI * Math.sqrt(l * c))).toFixed(2)} Hz`;
+}
+
+/* AC POWER */
+function calcACPower() {
+  const v = parseFloat(document.getElementById("acVolts").value);
+  const i = parseFloat(document.getElementById("acAmps").value);
+  const phi = parseFloat(document.getElementById("acPhase").value);
+  const out = document.getElementById("acpowerout");
+  if (isNaN(v) || isNaN(i) || isNaN(phi)) { out.innerText = 'Invalid parameters.'; return; }
+  const rad = phi * (Math.PI / 180);
+  const pf = Math.cos(rad);
+  out.innerText = `Active P = ${(v * i * pf).toFixed(2)} W\nReactive Q = ${(v * i * Math.sin(rad)).toFixed(2)} VAR\nApparent S = ${(v * i).toFixed(2)} VA\npf = ${pf.toFixed(3)}`;
+}
+
+/* WAVELENGTH */
+function calcWavelength() {
+  const f = parseFloat(document.getElementById("waveFreq").value);
+  const v = parseFloat(document.getElementById("waveMedium").value);
+  const out = document.getElementById("waveout");
+  if (isNaN(f) || f <= 0) { out.innerText = 'Frequency must be > 0.'; return; }
+  out.innerText = `Wavelength λ = ${(v / f).toFixed(4)} m`;
+}
+
+/* 555 TIMER */
+function calc555Timer() {
+  const r1 = parseFloat(document.getElementById("t555R1").value);
+  const r2 = parseFloat(document.getElementById("t555R2").value);
+  const c = parseFloat(document.getElementById("t555C").value);
+  const out = document.getElementById("timer555out");
+  if (isNaN(r1) || isNaN(r2) || isNaN(c) || r1 <= 0 || r2 <= 0 || c <= 0) { out.innerText = 'Values must be > 0.'; return; }
+  const th = 0.693 * (r1 + r2) * c, tl = 0.693 * r2 * c;
+  out.innerText = `Freq = ${(1.44 / ((r1 + 2 * r2) * c)).toFixed(2)} Hz\nDuty = ${((th / (th + tl)) * 100).toFixed(1)} %`;
+}
+
+/* NYQUIST */
+function calcNyquistRate() {
+  const f = parseFloat(document.getElementById("nyqMaxFreq").value);
+  const out = document.getElementById("nyquistout");
+  if (isNaN(f) || f <= 0) { out.innerText = 'Frequency must be > 0.'; return; }
+  out.innerText = `Nyquist Rate = ${(2 * f).toFixed(0)} Hz\nMax Sample Interval = ${(1 / (2 * f)).toExponential(3)} s`;
+}
+
+/* ADC SQNR */
+function calcSQNR() {
+  const n = parseFloat(document.getElementById("adcBits").value);
+  const out = document.getElementById("sqnrout");
+  if (isNaN(n) || n <= 0) { out.innerText = 'Bits must be > 0.'; return; }
+  out.innerText = `SQNR = ${(6.02 * n + 1.76).toFixed(2)} dB\nLevels = ${Math.pow(2, n)}`;
+}
+
+/* DECIBELS */
+function calcDecibels() {
+  const val = parseFloat(document.getElementById("dbInput").value);
+  const type = document.getElementById("dbCalcType").value;
+  const out = document.getElementById("dbout");
+  if (isNaN(val) || val <= 0) { out.innerText = 'Input must be > 0.'; return; }
+  if (type === 'pRatio') out.innerText = `Gain = ${(10 * Math.log10(val)).toFixed(2)} dB`;
+  else if (type === 'vRatio') out.innerText = `Gain = ${(20 * Math.log10(val)).toFixed(2)} dB`;
+  else out.innerText = `Power = ${(10 * Math.log10(val / 0.001)).toFixed(2)} dBm`;
+}
+
+/* LOGIC GATES */
+function executeLogicTransformation() {
+  const rawA = document.getElementById("gateInputA").value.trim();
+  const rawB = document.getElementById("gateInputB").value.trim();
+  const op = document.getElementById("gateLogicOp").value;
+  const out = document.getElementById("gateout");
+  const a = /^[01]+$/.test(rawA) ? parseInt(rawA, 2) : parseInt(rawA, 10);
+  const b = /^[01]+$/.test(rawB) ? parseInt(rawB, 2) : parseInt(rawB, 10);
+  if (isNaN(a)) { out.innerText = 'Invalid Operand A.'; return; }
+  let res = 0;
+  if (op === 'AND') res = a & b;
+  else if (op === 'OR') res = a | b;
+  else if (op === 'XOR') res = a ^ b;
+  else if (op === 'NAND') res = ~(a & b);
+  else if (op === 'NOR') res = ~(a | b);
+  else if (op === 'XNOR') res = ~(a ^ b);
+  else if (op === 'NOT') res = ~a;
+  res = res >>> 0;
+  out.innerText = `Dec = ${res}\nBin = ${res.toString(2)}\nHex = 0x${res.toString(16).toUpperCase()}`;
+}
+
+/* RESISTOR */
+function calcResistor() {
+  const b1 = parseInt(document.getElementById("band1").value);
+  const b2 = parseInt(document.getElementById("band2").value);
+  const mult = parseInt(document.getElementById("band3").value);
+  const tol = document.getElementById("band4").value;
+  const val = ((b1 * 10) + b2) * mult;
+  document.getElementById("resout").innerText = `R = ${val >= 1e6 ? (val/1e6).toFixed(1)+' MΩ' : (val >= 1e3 ? (val/1e3).toFixed(1)+' kΩ' : val+' Ω')} ±${tol}%`;
+}
+
+/* SPI & CPI */
+function calcSPICPI() {
+  let credits = 0, pts = 0;
+  for (let i = 1; i <= 3; i++) {
+    const c = parseFloat(document.getElementById("courseC" + i)?.value);
+    const g = parseFloat(document.getElementById("courseG" + i)?.value);
+    if (!isNaN(c) && c > 0) { credits += c; pts += (c * g); }
+  }
+  const out = document.getElementById("spicpiout");
+  if (credits === 0) { out.innerText = 'Enter course credit details.'; return; }
+  const spi = pts / credits;
+  let txt = `SPI = ${spi.toFixed(2)}\nTotal Semester Credits = ${credits}`;
+  const prevC = parseFloat(document.getElementById("previousCPI")?.value) || 0;
+  const prevVal = parseFloat(document.getElementById("previousCPIVal")?.value) || 0;
+  if (prevC > 0 && prevVal > 0) {
+    const cpi = ((prevC * prevVal) + pts) / (prevC + credits);
+    txt += `\nCumulative CPI = ${cpi.toFixed(2)}`;
+  }
+  out.innerText = txt;
+}
+
+/* CGPA */
+function calcCGPA() {
+  let total = 0, count = 0;
+  for (let i = 1; i <= 6; i++) {
+    const val = parseFloat(document.getElementById("g" + i).value);
+    if (!isNaN(val) && val > 0) { total += val; count++; }
+  }
+  document.getElementById("cgpaout").innerText = count > 0 ? `CGPA = ${(total / count).toFixed(2)}` : 'Enter SGPA values.';
+}
+
+/* EMI */
+function calcEMI() {
+  const p = parseFloat(document.getElementById("emiPrincipal").value);
+  const r = parseFloat(document.getElementById("emiRate").value) / 12 / 100;
+  const n = parseFloat(document.getElementById("emiTenure").value);
+  if (!p || !r || !n) return;
+  document.getElementById("emiout").innerText = `Monthly EMI = ${((p * r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1)).toFixed(2)}`;
+}
+
+/* SI & % */
+function si() { document.getElementById("fout").innerText = "Interest = " + (document.getElementById("p").value * document.getElementById("r").value * document.getElementById("t").value) / 100; }
+function per() { document.getElementById("perout").innerText = ((document.getElementById("a").value / document.getElementById("b").value) * 100).toFixed(2) + "%"; }
+
+/* KINEMATICS */
+function calcKinematics() {
+  let v = parseFloat(document.getElementById("kinV").value);
+  let u = parseFloat(document.getElementById("kinU").value);
+  let a = parseFloat(document.getElementById("kinA").value);
+  let t = parseFloat(document.getElementById("kinT").value);
+  let s = parseFloat(document.getElementById("kinS").value);
+  if (isNaN(v) && !isNaN(u) && !isNaN(a) && !isNaN(t)) v = u + a * t;
+  if (isNaN(s) && !isNaN(u) && !isNaN(t) && !isNaN(a)) s = u * t + 0.5 * a * t * t;
+  document.getElementById("kinematicsout").innerText = `v = ${isNaN(v) ? '?' : v.toFixed(2)} m/s, s = ${isNaN(s) ? '?' : s.toFixed(2)} m`;
+}
+
+/* WAVE PERIOD */
+function calcWavePeriod() {
+  const f = parseFloat(document.getElementById("wperFreq").value);
+  document.getElementById("waveperout").innerText = f > 0 ? `T = ${(1 / f).toFixed(6)} s (${(1000 / f).toFixed(3)} ms)` : 'Frequency must be > 0.';
+}
+
+/* NOTES */
+function saveNotes() {
+  localStorage.setItem("magic_calc_notes", document.getElementById("notepadArea").value);
+  const s = document.getElementById("noteStatus");
+  s.style.color = "var(--primary-color)";
+  s.innerText = "Saved to local storage.";
+  setTimeout(() => s.innerText = "", 1500);
+}
+function loadNotes() { document.getElementById("notepadArea").value = localStorage.getItem("magic_calc_notes") || ""; }
+function clearNotes() { document.getElementById("notepadArea").value = ""; localStorage.removeItem("magic_calc_notes"); }
+
+/* STOPWATCH */
+let swInterval = null, swStartTime = 0, swElapsedTime = 0;
+function startSW() {
+  if (!swInterval) {
+    swStartTime = Date.now() - swElapsedTime;
+    swInterval = setInterval(() => {
+      swElapsedTime = Date.now() - swStartTime;
+      const ms = Math.floor((swElapsedTime % 1000) / 10);
+      const s = Math.floor((swElapsedTime / 1000) % 60);
+      const m = Math.floor((swElapsedTime / 60000) % 60);
+      const h = Math.floor(swElapsedTime / 3600000);
+      document.getElementById("swDisplay").innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms).padStart(2,'0')}`;
+    }, 30);
+  }
+}
+function stopSW() { clearInterval(swInterval); swInterval = null; }
+function resetSW() { stopSW(); swElapsedTime = 0; document.getElementById("swDisplay").innerText = "00:00:00.00"; }
+
+/* THERMAL */
+function convertTemp() {
+  const v = parseFloat(document.getElementById("tempVal").value);
+  const f = document.getElementById("tempFrom").value;
+  let c = v;
+  if (f === 'F') c = (v - 32) * (5 / 9);
+  else if (f === 'K') c = v - 273.15;
+  document.getElementById("tempout").innerHTML = `${c.toFixed(2)} °C<br>${(c * 9/5 + 32).toFixed(2)} °F<br>${(c + 273.15).toFixed(2)} K`;
+}
+
+/* UNITS */
+function km() {
+  const v = parseFloat(document.getElementById("km").value) || 0;
+  const t = document.getElementById("engUnitType").value;
+  let res = '';
+  if (t === 'km2miles') res = (v * 0.621371).toFixed(2) + ' miles';
+  else if (t === 'hp2w') res = (v * 745.7).toFixed(1) + ' W';
+  else res = (v * 0.0689476).toFixed(4) + ' bar';
+  document.getElementById("uout").innerText = res;
+}
+
+/* CURRENCY */
+function calcCurrency() {
+  const amt = parseFloat(document.getElementById("currAmt").value) || 0;
+  const from = document.getElementById("currFrom").value;
+  const to = document.getElementById("currTo").value;
+  const rates = { USD: 1.0, EUR: 0.92, INR: 83.5 };
+  document.getElementById("currout").innerText = `${amt} ${from} = ${((amt / rates[from]) * rates[to]).toFixed(2)} ${to}`;
+}
+
+/* AGE & BMI */
+function age() {
+  const b = new Date(document.getElementById("dob").value);
+  document.getElementById("ageout").innerText = isNaN(b) ? '' : (new Date().getFullYear() - b.getFullYear()) + ' years old';
+}
+function bmi() {
+  const w = parseFloat(document.getElementById("w").value);
+  const h = parseFloat(document.getElementById("h").value);
+  document.getElementById("bmout").innerText = (w > 0 && h > 0) ? `BMI = ${(w / (h * h)).toFixed(2)}` : 'Enter valid weight & height.';
+}
+
+/* CALENDAR */
+function renderCalendar() {
+  const mVal = document.getElementById("calMonth").value;
+  if (!mVal) return;
+  const [y, m] = mVal.split("-").map(Number);
+  const first = new Date(y, m - 1, 1).getDay();
+  const days = new Date(y, m, 0).getDate();
+  let txt = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].join(" ") + "\n" + "   ".repeat(first);
+  for (let d = 1; d <= days; d++) {
+    txt += String(d).padStart(2, ' ') + " ";
+    if ((d + first) % 7 === 0) txt += "\n";
+  }
+  const calOut = document.getElementById("calout");
+  if (calOut) calOut.innerText = txt;
+}
+</script>
+</body>
+</html>
