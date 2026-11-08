@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Systems Lab: Floating Neutral Dynamics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #090a0c;
+            --panel-steel: #131418;
+            --card-bg: #020203;
+            --color-a: #ff4d4d;
+            --color-b: #ffbf00;
+            --color-c: #00bfff;
+            --color-n: #e0e0e0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Top Widescreen Telemetry Bay */
+        .telemetry-panel {
+            grid-column: 1 / -1;
+            background-color: var(--panel-steel);
+            border: 1px solid #2d3139;
+            border-radius: 8px;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .tel-box {
+            background-color: var(--card-bg);
+            border: 1px solid #1f2229;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+        }
+
+        .tel-title {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .tel-val {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* Left Controls Panel */
+        .control-panel {
+            background-color: var(--panel-steel);
+            border: 1px solid #2d3139;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            accent-color: var(--color-b);
+        }
+
+        input[type="number"] {
+            width: 60px;
+            background-color: var(--card-bg);
+            border: 1px solid #2d3139;
+            color: #fff;
+            padding: 4px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Graphic Plot Windows */
+        .graphics-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .plot-container {
+            background-color: var(--panel-steel);
+            border: 1px solid #2d3139;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .plot-title {
+            align-self: flex-start;
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        canvas {
+            background-color: var(--card-bg);
+            border-radius: 4px;
+        }
+
+        #status-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <div class="telemetry-panel">
+            <div class="tel-box" style="color: #00ffaa;">
+                <div class="tel-title">Δ VN'N Displacement</div>
+                <div id="v-shift-rms" class="tel-val">0.0 V RMS</div>
+            </div>
+            <div class="tel-box" style="color: var(--color-b);">
+                <div class="tel-title">Load Phase Voltages (RMS)</div>
+                <div id="v-abc-rms" class="tel-val">A: 0V | B: 0V | C: 0V</div>
+            </div>
+            <div class="tel-box" style="color: var(--color-c);">
+                <div class="tel-title">Load Line Currents (RMS)</div>
+                <div id="i-abc-rms" class="tel-val">A: 0A | B: 0A | C: 0A</div>
+            </div>
+            <div id="status-box" class="tel-box">
+                GRID STATUS NOMINAL
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <h3 style="margin: 0; border-bottom: 1px solid #2d3139; padding-bottom: 10px;">VARIAC INPUTS</h3>
+            
+            <div class="control-group">
+                <label style="color: var(--color-b);">Main Bus Voltage (Peak V)</label>
+                <div class="input-row">
+                    <input type="range" id="v-bus-slider" min="0" max="400" value="230">
+                    <input type="number" id="v-bus-num" value="230">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label style="color: var(--color-a);">Phase A Resistance (Ω)</label>
+                <div class="input-row">
+                    <input type="range" id="ra-slider" min="1" max="200" value="10">
+                    <input type="number" id="ra-num" value="10">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label style="color: var(--color-b);">Phase B Resistance (Ω)</label>
+                <div class="input-row">
+                    <input type="range" id="rb-slider" min="1" max="200" value="15">
+                    <input type="number" id="rb-num" value="15">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label style="color: var(--color-c);">Phase C Resistance (Ω)</label>
+                <div class="input-row">
+                    <input type="range" id="rc-slider" min="1" max="200" value="20">
+                    <input type="number" id="rc-num" value="20">
+                </div>
+            </div>
+        </div>
+
+        <div class="graphics-area">
+            <div class="plot-container">
+                <div class="plot-title">Phasor Vector Diagram (Click & Drag N')</div>
+                <canvas id="vectorCanvas" width="400" height="400"></canvas>
+            </div>
+            <div class="plot-container">
+                <div class="plot-title">Time Domain Waveforms (Voltages & Currents)</div>
+                <canvas id="waveChart" width="500" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // System variables setup
+        let sys = {
+            V_peak: 230, R_A: 10, R_B: 15, R_C: 20,
+            freq: 50, isDragging: false,
+            N_shift: { x: 0, y: 0 }
+        };
+
+        const canvas = document.getElementById('vectorCanvas');
+        const ctx = canvas.getContext('2d');
+        let waveChart;
+
+        // UI element definitions
+        const sliders = {
+            V: document.getElementById('v-bus-slider'),
+            RA: document.getElementById('ra-slider'),
+            RB: document.getElementById('rb-slider'),
+            RC: document.getElementById('rc-slider')
+        };
+        const nums = {
+            V: document.getElementById('v-bus-num'),
+            RA: document.getElementById('ra-num'),
+            RB: document.getElementById('rb-num'),
+            RC: document.getElementById('rc-num')
+        };
+
+        // Initialize Callbacks Links
+        function setupEventListeners() {
+            Object.keys(sliders).forEach(key => {
+                sliders[key].addEventListener('input', (e) => {
+                    nums[key].value = e.target.value;
+                    updateSystemValues();
+                });
+                nums[key].addEventListener('change', (e) => {
+                    sliders[key].value = e.target.value;
+                    updateSystemValues();
+                });
+            });
+
+            // Mouse handling for dragging N' point
+            canvas.addEventListener('mousedown', onMouseDown);
+            canvas.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', () => sys.isDragging = false);
+        }
+
+        function updateSystemValues() {
+            sys.V_peak = parseFloat(sliders.V.value);
+            sys.R_A = parseFloat(sliders.RA.value);
+            sys.R_B = parseFloat(sliders.RB.value);
+            sys.R_C = parseFloat(sliders.RC.value);
+            computeSystem(true);
+        }
+
+        // Complex number math helpers for Millman's Theorem
+        function computeSystem(recalcNeutral) {
+            const angleA = 0;
+            const angleB = -2 * Math.PI / 3;
+            const angleC = 2 * Math.PI / 3;
+
+            // Generator Source Vectors
+            const VA = { x: sys.V_peak * Math.cos(angleA), y: sys.V_peak * Math.sin(angleA) };
+            const VB = { x: sys.V_peak * Math.cos(angleB), y: sys.V_peak * Math.sin(angleB) };
+            const VC = { x: sys.V_peak * Math.cos(angleC), y: sys.V_peak * Math.sin(angleC) };
+
+            if (recalcNeutral) {
+                const YA = 1 / sys.R_A, YB = 1 / sys.R_B, YC = 1 / sys.R_C;
+                const sumY = YA + YB + YC;
+                // Millman's Neutral coordinate calculation
+                sys.N_shift.x = (VA.x * YA + VB.x * YB + VC.x * YC) / sumY;
+                sys.N_shift.y = (VA.y * YA + VB.y * YB + VC.y * YC) / sumY;
+            }
+
+            // Phase loads voltages drops
+            const VAN = { x: VA.x - sys.N_shift.x, y: VA.y - sys.N_shift.y };
+            const VBN = { x: VB.x - sys.N_shift.x, y: VB.y - sys.N_shift.y };
+            const VCN = { x: VC.x - sys.N_shift.x, y: VC.y - sys.N_shift.y };
+
+            // Magnitudes (RMS)
+            const vN_rms = Math.hypot(sys.N_shift.x, sys.N_shift.y) / Math.SQRT2;
+            const vA_rms = Math.hypot(VAN.x, VAN.y) / Math.SQRT2;
+            const vB_rms = Math.hypot(VBN.x, VBN.y) / Math.SQRT2;
+            const vC_rms = Math.hypot(VCN.x, VCN.y) / Math.SQRT2;
+
+            const iA_rms = vA_rms / sys.R_A;
+            const iB_rms = vB_rms / sys.R_B;
+            const iC_rms = vC_rms / sys.R_C;
+
+            // Update Telemetry Panel Outputs
+            document.getElementById('v-shift-rms').innerText = `${vN_shift_rms = vN_rms.toFixed(1)} V RMS`;
+            document.getElementById('v-abc-rms').innerText = `A: ${vA_rms.toFixed(1)}V | B: ${vB_rms.toFixed(1)}V | C: ${vC_rms.toFixed(1)}V`;
+            document.getElementById('i-abc-rms').innerText = `A: ${iA_rms.toFixed(1)}A | B: ${iB_rms.toFixed(1)}A | C: ${iC_rms.toFixed(1)}A`;
+
+            // Status Alarm logic
+            const status = document.getElementById('status-box');
+            if (vN_rms < 15) {
+                status.innerText = "GRID STATUS: NOMINAL";
+                status.style.backgroundColor = "#023410";
+            } else if (vN_rms < 65) {
+                status.innerText = "WARNING: ASYMMETRIC SHIFT";
+                status.style.backgroundColor = "#4a3b00";
+            } else {
+                status.innerText = "CRITICAL: NEUTRAL FAULT";
+                status.style.backgroundColor = "#5a0000";
+            }
+
+            drawVectorDiagram(VA, VB, VC, VAN, VBN, VCN);
+            updateWavecharts(VAN, VBN, VCN, sys.N_shift);
+        }
+
+        // Draw vectors on Canvas 2D
+        function drawVectorDiagram(VA, VB, VC, VAN, VBN, VCN) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const scale = 0.45; // Match vector magnitudes to pixel dimensions
+
+            // Draw axis references
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
+
+            // Source Dashed references
+            ctx.setLineDash([2, 4]); ctx.strokeStyle = '#444';
+            [VA, VB, VC].forEach(v => {
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + v.x*scale, cy - v.y*scale); ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // Draw Neutral Shift Vector (White Dash)
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+            drawArrow(cx, cy, cx + sys.N_shift.x*scale, cy - sys.N_shift.y*scale);
+            ctx.setLineDash([]);
+
+            // Draw Load Vectors originating from shifting N' node
+            const nx = cx + sys.N_shift.x*scale;
+            const ny = cy - sys.N_shift.y*scale;
+
+            ctx.strokeStyle = '#ff4d4d'; drawArrow(nx, ny, nx + VAN.x*scale, ny - VAN.y*scale);
+            ctx.strokeStyle = '#ffbf00'; drawArrow(nx, ny, nx + VBN.x*scale, ny - VBN.y*scale);
+            ctx.strokeStyle = '#00bfff'; drawArrow(nx, ny, nx + VCN.x*scale, ny - VCN.y*scale);
+
+            // Clickable Center Handle Node dot
+            ctx.fillStyle = '#ffffff'; ctx.beginPath();
+            ctx.arc(nx, ny, 6, 0, 2*Math.PI); ctx.fill();
+        }
+
+        function drawArrow(x1, y1, x2, y2) {
+            const headlen = 10;
+            const dx = x2 - x1, dy = y2 - y1;
+            const angle = Math.atan2(dy, dx);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headlen * Math.cos(angle - Math.PI / 6), y2 - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - headlen * Math.cos(angle + Math.PI / 6), y2 - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath(); ctx.fillStyle = ctx.strokeStyle; ctx.fill();
+        }
+
+        function onMouseDown(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const cx = canvas.width / 2; const cy = canvas.height / 2; const scale = 0.45;
+            
+            const nx = cx + sys.N_shift.x * scale;
+            const ny = cy - sys.N_shift.y * scale;
+
+            if (Math.hypot(mx - nx, my - ny) < 15) {
+                sys.isDragging = true;
+            }
+        }
+
+        function onMouseMove(e) {
+            if (!sys.isDragging) return;
+            const rect = canvas.getBoundingClientRect();
+            const scale = 0.45;
+            const mx = e.clientX - rect.left - canvas.width/2;
+            const my = canvas.height/2 - (e.clientY - rect.top);
+
+            sys.N_shift.x = mx / scale;
+            sys.N_shift.y = my / scale;
+            computeSystem(false); // Update without resetting coordinates over mouse pointer location
+        }
+
+        // Generate Chart.js Time traces configurations
+        function initChart() {
+            const ctxChart = document.getElementById('waveChart').getContext('2d');
+            waveChart = new Chart(ctxChart, {
+                type: 'line',
+                data: { labels: [], datasets: [
+                    { label: 'v_A', borderColor: '#ff4d4d', data: [], borderDash: [], borderWidth: 2, pointRadius: 0 },
+                    { label: 'v_B', borderColor: '#ffbf00', data: [], borderDash: [], borderWidth: 2, pointRadius: 0 },
+                    { label: 'v_C', borderColor: '#00bfff', data: [], borderDash: [], borderWidth: 2, pointRadius: 0 },
+                    { label: 'v_NN\'', borderColor: '#ffffff', data: [], borderDash: [3, 3], borderWidth: 1.5, pointRadius: 0 }
+                ]},
+                options: {
+                    responsive: false,
+                    animation: false,
+                    scales: {
+                        x: { type: 'linear', min: 0, max: 0.04, title: { display: true, text: 'Time (s)', color: '#fff' }, grid: { color: '#222' } },
+                        y: { min: -480, max: 480, title: { display: true, text: 'Voltage (V)', color: '#fff' }, grid: { color: '#222' } }
+                    },
+                    plugins: { legend: { labels: { color: '#fff' } } }
+                }
+            });
+        }
+
+        function updateWavecharts(VAN, VBN, VCN, N) {
+            const points = 100;
+            const tMax = 0.04;
+            const omega = 2 * Math.PI * sys.freq;
+
+            let vaData = [], vbData = [], vcData = [], vnData = [];
+
+            const ampA = Math.hypot(VAN.x, VAN.y), phiA = Math.atan2(VAN.y, VAN.x);
+            const ampB = Math.hypot(VBN.x, VBN.y), phiB = Math.atan2(VBN.y, VBN.x);
+            const ampC = Math.hypot(VCN.x, VCN.y), phiC = Math.atan2(VCN.y, VCN.x);
+            const ampN = Math.hypot(N.x, N.y),     phiN = Math.atan2(N.y, N.x);
+
+            for(let i=0; i<=points; i++) {
+                let t = (i / points) * tMax;
+                vaData.push({ x: t, y: ampA * Math.sin(omega * t + phiA) });
+                vbData.push({ x: t, y: ampB * Math.sin(omega * t + phiB) });
+                vcData.push({ x: t, y: ampC * Math.sin(omega * t + phiC) });
+                vnData.push({ x: t, y: ampN * Math.sin(omega * t + phiN) });
+            }
+
+            waveChart.data.datasets[0].data = vaData;
+            waveChart.data.datasets[1].data = vbData;
+            waveChart.data.datasets[2].data = vcData;
+            waveChart.data.datasets[3].data = vnData;
+            waveChart.update();
+        }
+
+        // Launch app stack
+        setupEventListeners();
+        initChart();
+        updateSystemValues();
+    </script>
+</body>
+</html>
