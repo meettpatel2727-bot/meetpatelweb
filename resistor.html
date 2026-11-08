@@ -1,0 +1,804 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vortex Electronics Labs - Hyper-Speed Resistor Matrix</title>
+    <style>
+        /* Standalone High-Performance Offline Cyber CSS Design Framework */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #0b0f19; color: #f1f5f9; min-height: 100vh; padding: 20px; }
+        
+        .master-container { max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Top Navigation Header Assembly */
+        .header-action-container { background-color: #111827; border: 1px solid #1e293b; padding: 12px 16px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
+        .header-icon-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 18px; font-weight: bold; transition: color 0.2s; display: flex; align-items: center; justify-content: center; }
+        .header-icon-btn:hover { color: #22d3ee; }
+        .header-right-controls { display: flex; align-items: center; gap: 12px; }
+        .vx-profile-badge { font-weight: 900; font-size: 11px; background-color: #070a13; padding: 6px 14px; border-radius: 10px; border: 1px solid #1e293b; color: #38bdf8; letter-spacing: 0.05em; text-transform: uppercase; }
+        
+        /* Layout Switcher Panel Component */
+        .mode-toggle-bar { background-color: #111827; border: 1px solid #1e293b; padding: 12px 16px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .mode-label { font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        .mode-btns { display: flex; gap: 4px; background-color: #070a13; padding: 3px; border-radius: 12px; border: 1px solid #1e293b; }
+        .mode-btn { background: none; border: none; color: #475569; font-size: 11px; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .mode-btn.active { background-color: #06b6d4; color: #070a13; }
+
+        /* Premium Modular Card Paneling */
+        .card { background-color: #111827; border: 1px solid #1e293b; padding: 24px; border-radius: 28px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); text-align: center; display: flex; flex-direction: column; gap: 16px; }
+        
+        /* Centered Replicated Typography Hero Stack */
+        .hero-title-group { display: flex; flex-direction: column; gap: 6px; margin: 12px 0 4px 0; }
+        .hero-title-row { font-size: 36px; font-weight: 950; tracking-widest: 0.05em; text-transform: uppercase; line-height: 0.95; }
+        .hero-blue { color: #3b82f6; }
+        .hero-cyan { color: #22d3ee; background: linear-gradient(to right, #22d3ee, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-subtitle { font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.12em; max-width: 300px; margin: 4px auto 0 auto; line-height: 1.4; }
+        
+        /* Live Engine Status Pill Badge */
+        .status-pill { display: inline-flex; align-items: center; gap: 10px; background-color: #090d16; border: 1px solid #1e293b; padding: 10px 22px; border-radius: 16px; margin: 8px auto 4px auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6); width: max-content; }
+        .status-label { font-size: 10px; color: #06b6d4; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+        .status-dot { width: 6px; height: 6px; background-color: #f59e0b; border-radius: 50%; box-shadow: 0 0 10px #f59e0b; animation: pulse 2s infinite; }
+        .status-value { font-family: monospace; font-size: 11px; color: #10b981; font-weight: bold; letter-spacing: 0.05em; }
+        
+        /* Section Workbench Typography */
+        .section-header { font-size: 13px; font-weight: bold; text-transform: uppercase; color: #cbd5e1; letter-spacing: 0.05em; text-align: left; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .section-header::before { content: ''; display: inline-block; width: 8px; height: 8px; background-color: #06b6d4; border-radius: 50%; box-shadow: 0 0 8px #06b6d4; }
+        
+        /* Workbench Navigation Buttons Strip */
+        .tabs-scroller { background-color: #070a13; border: 1px solid #1e293b; padding: 4px; border-radius: 14px; overflow-x: auto; width: 100%; margin-bottom: 4px; }
+        .tabs-list { display: flex; gap: 4px; list-style: none; width: max-content; }
+        .tab-btn { background: none; border: none; padding: 8px 16px; font-size: 12px; font-weight: bold; color: #475569; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; }
+        .tab-btn.active { background: linear-gradient(to right, #06b6d4, #2563eb); color: #ffffff; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+        
+        /* Resistor Vector Graphics Container Box */
+        .resistor-viewport { background-color: #070a13; border: 1px solid #1e293b; padding: 24px; border-radius: 18px; min-height: 130px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .wire-leads { position: absolute; height: 4px; background: linear-gradient(to bottom, #94a3b8, #475569); width: 88%; left: 6%; border-radius: 2px; }
+        .resistor-canvas { background: linear-gradient(to bottom, #F4E3C3 0%, #EAD4A4 25%, #DEC084 50%, #CDA865 75%, #B78F4A 100%); box-shadow: inset 0 4px 6px rgba(255,255,255,0.5), inset 0 -4px 6px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.5); width: 100%; height: 68px; border-radius: 40px; display: flex; justify-content: space-around; items: center; padding: 0 20px; position: relative; z-index: 10; overflow: hidden; }
+        .color-band { height: 100%; width: 11px; transition: background-color 0.25s ease; box-shadow: inset 1px 0 2px rgba(255,255,255,0.2), inset -1px 0 2px rgba(0,0,0,0.3); }
+        
+        /* Color Band Style Definition Classes */
+        .band-black { background-color: #111111; border: 1px solid #2d3748; }
+        .band-brown { background-color: #7A3E17; }
+        .band-red { background-color: #EF4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+        .band-orange { background-color: #F97316; box-shadow: 0 0 10px rgba(249, 115, 22, 0.4); }
+        .band-yellow { background-color: #FACC15; box-shadow: 0 0 10px rgba(250, 204, 21, 0.3); }
+        .band-green { background-color: #22C55E; box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
+        .band-blue { background-color: #3B82F6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+        .band-violet { background-color: #A855F7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
+        .band-grey { background-color: #6B7280; }
+        .band-white { background-color: #FFFFFF; border: 1px solid #CBD5E1; }
+        .band-gold { background-color: #D4AF37; background-image: linear-gradient(135deg, #D4AF37 0%, #FFFDD0 50%, #AA7C11 100%); }
+        .band-silver { background-color: #C0C0C0; background-image: linear-gradient(135deg, #C0C0C0 0%, #FFFFFF 50%, #7F8C8D 100%); }
+        
+        /* Output Spec panels values */
+        .output-panel { background-color: #070a13; border: 1px solid #1e293b; padding: 16px; border-radius: 18px; text-align: left; display: flex; flex-direction: column; gap: 10px; }
+        .output-label { font-size: 10px; text-transform: uppercase; font-weight: 800; color: #475569; letter-spacing: 0.08em; }
+        .output-value { font-size: 32px; font-family: monospace; font-weight: 900; color: #10b981; line-height: 1.1; }
+        .attributes-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-family: monospace; font-size: 11px; margin-top: 2px; }
+        .attr-card { background-color: #111827; padding: 8px 12px; border-radius: 10px; border: 1px solid #1e293b; }
+        .attr-label { color: #475569; font-size: 9px; text-transform: uppercase; margin-bottom: 2px; }
+        .attr-data { font-weight: bold; color: #cbd5e1; }
+        
+        /* Dropdown selection configuration grid wrapper */
+        .sub-tools-group { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+        .selectors-grid { background-color: rgba(7, 10, 19, 0.4); border: 1px solid #1e293b; padding: 16px; border-radius: 18px; display: flex; flex-direction: column; gap: 12px; text-align: left; max-height: 250px; overflow-y: auto; }
+        .dropdown-container { display: flex; flex-direction: column; gap: 6px; }
+        .dropdown-label { font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        .matrix-select { width: 100%; background-color: #1e293b; border: 1px solid #334155; color: #f1f5f9; border-radius: 12px; padding: 10px; font-size: 12px; outline: none; cursor: pointer; }
+        
+        /* Engineering auxiliary calculation tool components */
+        .tool-panel { background-color: #111827; border: 1px solid #1e293b; padding: 20px; border-radius: 24px; display: flex; flex-direction: column; gap: 14px; }
+        .tool-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px; }
+        .tool-title { font-size: 12px; font-weight: bold; text-transform: uppercase; color: #cbd5e1; }
+        .tool-badge { font-size: 8px; font-family: monospace; background-color: #1e293b; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #22d3ee; }
+        .tool-input-row { display: flex; gap: 8px; }
+        .tool-input { width: 100%; background-color: #070a13; border: 1px solid #1e293b; border-radius: 12px; padding: 12px; color: #22d3ee; font-family: monospace; font-size: 12px; outline: none; }
+        .tool-btn { background: linear-gradient(to right, #06b6d4, #2563eb); border: none; color: white; font-size: 11px; font-weight: bold; text-transform: uppercase; padding: 0 16px; border-radius: 10px; cursor: pointer; height: 38px; }
+        
+        /* Round Shape Modification Box targeting the Assistant Hub Input Query Element precisely */
+        .round-pill-input { width: 100%; background-color: #070a13; border: 1px solid #1e293b; border-radius: 24px !important; padding: 12px 48px 12px 18px; color: #22d3ee; font-family: monospace; font-size: 12px; outline: none; }
+
+        /* System overlays, Spec dialog overlay sheets */
+        .fixed-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.85); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; }
+        .modal-body { width: 100%; max-width: 440px; background-color: #1f1f1f; color: #f5f5f5; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .hidden { display: none !important; }
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+        /* Symmetrical PC Widescreen Monitor Responsive Styles Overrides */
+        @media (min-width: 1024px) {
+            .laptop-grid-layout { max-width: 1360px !important; display: grid !important; grid-template-columns: 1fr 1.3fr !important; gap: 28px !important; align-items: start !important; }
+            .laptop-grid-layout .sub-tools-group { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+            .laptop-grid-layout .span-full { grid-column: span 2 !important; }
+        }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #020617; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div id="masterContainer" class="master-container">
+    
+    <!-- TOP LAYOUT NAV SHORTCUT BAR -->
+    <div class="header-action-container">
+        <button id="drawerOpenBtn" class="header-icon-btn">☰</button>
+        <div class="header-right-controls">
+            <div class="vx-profile-badge">VX PROFILE</div>
+            <button id="settingsToggleBtn" class="header-icon-btn" title="Engine Settings">⚙️</button>
+        </div>
+    </div>
+
+    <!-- NATIVE INTERACTIVE VIEWPORT LAYOUT SWITCHER MODES -->
+    <div class="mode-toggle-bar">
+        <span class="mode-label">🖥️ Viewport Layout Mode:</span>
+        <div class="mode-btns">
+            <button id="btnPhone" class="mode-btn active">📱 Phone</button>
+            <button id="btnTablet" class="mode-btn">📟 Tablet</button>
+            <button id="btnLaptop" class="mode-btn">💻 Laptop</button>
+        </div>
+    </div>
+
+    <!-- LAYOUT MATRIX STRUCTURAL ROOT WRAPPER -->
+    <div id="layoutSplitEngine" class="space-y-6">
+        
+        <!-- CARD 1: IDENTITY HEADER HERO BLOCK -->
+        <div class="card">
+            <div class="hero-title-group">
+                <div class="hero-title-row hero-blue">Vortex</div>
+                <div class="hero-title-row hero-cyan">Electronics</div>
+                <div class="hero-title-row hero-blue">Labs</div>
+            </div>
+            <p class="hero-subtitle">Hyper-Speed Extended Band Array Engine</p>
+            
+            <div class="status-pill">
+                <span class="status-label">Calculations Status</span>
+                <span class="status-dot"></span>
+                <span class="status-value">REALTIME ULTRA-FAST SPEED</span>
+            </div>
+        </div>
+
+        <!-- STACK AXIS: Secondary Calculators Core Container -->
+        <div class="sub-tools-group">
+            
+            <!-- CARD 2: PASSIVE BAND SELECTOR WORKBENCH MATRIX -->
+            <div class="card">
+                <div style="border-bottom: 1px solid #1e293b; padding-bottom: 12px; margin-bottom: 4px;">
+                    <h2 class="section-header">Custom Band Workbench Matrix</h2>
+                    <div class="tabs-scroller" style="margin-top: 8px;">
+                        <div class="tabs-list">
+                            <button id="bandTab2" class="tab-btn">2B</button>
+                            <button id="bandTab3" class="tab-btn">3B</button>
+                            <button id="bandTab4" class="tab-btn active">4B</button>
+                            <button id="bandTab5" class="tab-btn">5B</button>
+                            <button id="bandTab6" class="tab-btn">6B</button>
+                            <button id="bandTab7" class="tab-btn">7B</button>
+                            <button id="bandTab8" class="tab-btn">8B</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="resistor-viewport">
+                    <div class="wire-leads"></div>
+                    <div class="resistor-canvas">
+                        <div id="bandEl1" class="color-band band-brown"></div>
+                        <div id="bandEl2" class="color-band band-black"></div>
+                        <div id="bandEl3" class="color-band band-black"></div>
+                        <div id="bandEl4" class="color-band band-black"></div>
+                        <div id="bandEl5" class="color-band band-black"></div>
+                        <div id="bandElMul" class="color-band band-red"></div>
+                        <div id="bandElTol" class="color-band band-gold"></div>
+                        <div id="bandElPpm" class="color-band band-brown"></div>
+                    </div>
+                </div>
+
+                <div class="output-panel">
+                    <span class="output-label">Total Calculated Ohms</span>
+                    <div id="ohmsResultText" class="output-value">1.00 kΩ</div>
+                    <div class="attributes-row">
+                        <div class="attr-card"><span class="attr-label">Tolerance:</span><div id="tolResultText" class="attr-data">±5%</div></div>
+                        <div class="attr-card"><span class="attr-label">Temp Coeff:</span><div id="ppmResultText" class="attr-data" style="color: #22d3ee;">N/A</div></div>
+                    </div>
+                </div>
+
+                <div class="selectors-grid custom-scroll">
+                    <div class="dropdown-container" id="boxB1">
+                        <label class="dropdown-label">1st Position Value</label>
+                        <select id="selBand1" class="matrix-select"><option value="black">Black</option><option value="brown" selected>Brown</option><option value="red">Red</option><option value="orange">Orange</option><option value="yellow">Yellow</option><option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="grey">Grey</option><option value="white">White</option></select>
+                    </div>
+                    <div class="dropdown-container" id="boxB2">
+                        <label class="dropdown-label">2nd Position Value</label>
+                        <select id="selBand2" class="matrix-select"><option value="black" selected>Black</option><option value="brown">Brown</option><option value="red">Red</option><option value="orange">Orange</option><option value="yellow">Yellow</option><option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="grey">Grey</option><option value="white">White</option></select>
+                    </div>
+                    <div class="dropdown-container" id="boxB3">
+                        <label class="dropdown-label">3rd Position Value</label>
+                        <select id="selBand3" class="matrix-select"><option value="black" selected>Black</option><option value="brown">Brown</option><option value="red">Red</option><option value="orange">Orange</option><option value="yellow">Yellow</option><option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="grey">Grey</option><option value="white">White</option></select>
+                    </div>
+                    <div class="dropdown-container" id="boxB4">
+                        <label class="dropdown-label">4th Position Value</label>
+                        <select id="selBand4" class="matrix-select"><option value="black" selected>Black</option><option value="brown">Brown</option><option value="red">Red</option><option value="orange">Orange</option><option value="yellow">Yellow</option><option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="grey">Grey</option><option value="white">White</option></select>
+                    </div>
+                    <div class="dropdown-container" id="boxB5">
+                        <label class="dropdown-label">5th Position Value</label>
+                        <select id="selBand5" class="matrix-select"><option value="black" selected>Black</option><option value="brown">Brown</option><option value="red">Red</option><option value="orange">Orange</option><option value="yellow">Yellow</option><option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="grey">Grey</option><option value="white">White</option></select>
+                    </div>
+                    <div class="dropdown-container" id="boxMul">
+                        <label class="dropdown-label">Multiplier Factor</label>
+                        <select id="selMultiplier" class="matrix-select"><option value="black">Black</option><option value="brown">Brown</option><option value="red" selected>Red</option><option value="orange">Orange</option><option value="yellow">Yellow</option><option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="gold">Gold</option><option value="silver">Silver</option></select>
+                    </div>
+                    <div class="dropdown-container" id="boxTol">
+                        <label class="dropdown-label">Tolerance Limit</label>
+                        <select id="selTolerance" class="matrix-select"><option value="brown">Brown</option><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="grey">Grey</option><option value="gold" selected>Gold</option><option value="silver">Silver</option></select>
+                    </div>
+                    <div class="dropdown-container" id="boxPpm">
+                        <label class="dropdown-label">Thermal PPM Coefficient</label>
+                        <select id="selPpm" class="matrix-select"><option value="black">Black</option><option value="brown" selected>Brown</option><option value="red">Red</option><option value="orange">Orange</option><option value="yellow">Yellow</option><option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="grey">Grey</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 3: CAMERA SCANNER HARDWARE HUB SIMULATOR -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <span class="tool-title">📷 Resistor Scanner Hub</span>
+                    <span class="tool-badge">HARDWARE</span>
+                </div>
+                <div style="background-color: #070a13; border: 1px solid #1e293b; position: relative; height: 130px; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div id="laserScannerLine" class="absolute left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent super-fast-laser z-30 hidden"></div>
+                    <video id="hardwareVideoView" autoplay playsinline style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-10;" class="hidden"></video>
+                    <img id="hardwarePhotoPreview" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-10;" class="hidden">
+                    <div style="text-align: center; padding: 10px; z-index: 0;">
+                        <span style="font-size: 20px;">👁️</span>
+                        <p style="font-size: 10px; color: #475569; font-family: monospace; margin-top: 4px;">Lens Standby / Media Ready</p>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button id="camToggleBtn" style="background-color:#070a13; border: 1px solid #1e293b; color:#22d3ee; padding: 8px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase;">🎥 Cam</button>
+                    <button id="snapshotTriggerBtn" class="tool-btn hidden" style="height: auto; padding: 8px;">📸 Snap</button>
+                    <label id="uploadTriggerLabel" style="background-color:#070a13; border: 1px solid #1e293b; color:#cbd5e1; padding: 8px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; text-transform: uppercase;">
+                        📁 Upload
+                        <input type="file" id="mediaFileInput" accept="image/*" class="hidden">
+                    </label>
+                </div>
+                <div id="hardwarePhotoAlert" class="hidden" style="background-color: rgba(6,182,212,0.1); border: 1px solid #0891b2; padding: 8px; border-radius: 10px; font-size: 10px; font-family: monospace; color: #22d3ee;"></div>
+            </div>
+
+            <!-- CARD 4: PARALLEL LOOP SOLVER NETWORK MODULE -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <span class="tool-title">🌀 Parallel Array Solver</span>
+                    <span class="tool-badge">LINKED</span>
+                </div>
+                <input type="text" id="parallelInputTxt" placeholder="Ex: 100, 220, 470" class="tool-input">
+                <div style="display: flex; justify-content: space-between; font-family: monospace; font-size: 11px; margin-top: 4px;">
+                    <span style="color: #64748b;">Req Equivalence:</span>
+                    <span id="parallelOutputTxt" style="color: #10b981; font-weight: bold;">0.00 Ω</span>
+                </div>
+            </div>
+
+            <!-- CARD 5: SURFACE MOUNT RESISTOR (SMD) CRYPT CONVERTER -->
+            <div class="tool-panel">
+                <div class="tool-header"><span class="tool-title">🔳 Surface Mount Decrypter</span><span class="tool-badge">SMD</span></div>
+                <div class="tool-input-row">
+                    <input type="text" id="smdInputTxt" placeholder="Ex: 103, 2R2" class="tool-input">
+                    <button id="smdCalculateActionBtn" class="tool-btn">Solve</button>
+                </div>
+                <div style="font-family: monospace; font-size: 11px; text-align: left; color: #10b981; font-weight: bold; margin-top: 4px;">Result: <span id="smdOutputText">---</span></div>
+            </div>
+
+            <!-- CARD 6: DELTA-WYE THREE-NODE MATRIX CONVERTER -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <span class="tool-title">📐 Delta-Wye Structural Bridge</span>
+                    <span class="tool-badge">NETWORK</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                    <input type="number" id="wyeDeltaInput1" class="tool-input" style="text-align: center;" placeholder="R1" value="100">
+                    <input type="number" id="wyeDeltaInput2" class="tool-input" style="text-align: center;" placeholder="R2" value="100">
+                    <input type="number" id="wyeDeltaInput3" class="tool-input" style="text-align: center;" placeholder="R3" value="100">
+                </div>
+                <div style="font-family: monospace; font-size: 10px; display: flex; flex-direction: column; gap: 4px; text-align: left; margin-top: 4px;">
+                    <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Transformed Node A:</span><span id="wyeDeltaOutA" style="color: #22d3ee;">33.33 Ω</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Transformed Node B:</span><span id="wyeDeltaOutB" style="color: #22d3ee;">33.33 Ω</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Transformed Node C:</span><span id="wyeDeltaOutC" style="color: #22d3ee;">33.33 Ω</span></div>
+                </div>
+            </div>
+
+            <!-- CARD 7: AMBIENT TEMP DRIFT COEFFICIENT MODULATOR -->
+            <div class="tool-panel">
+                <div class="tool-header">
+                    <span class="tool-title"><h3>🌡️ Thermal Drift Predictor</h3></span>
+                    <span class="tool-badge">PPM</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <input type="number" id="thermalRefTemp" class="tool-input" placeholder="Ref T (°C)" value="25">
+                    <input type="number" id="thermalTargetTemp" class="tool-input" placeholder="Target T (°C)" value="85">
+                </div>
+                <div style="font-family: monospace; font-size: 11px; display: flex; flex-direction: column; gap: 4px; text-align: left; margin-top: 4px;">
+                    <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Drift ΔR:</span><span id="thermalDriftDeltaText" style="color: #ef4444;">0.00 Ω</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Final Resistance:</span><span id="thermalDriftFinalText" style="color: #10b981; font-weight: bold;">1000.00 Ω</span></div>
+                </div>
+            </div>
+
+            <!-- CARD 8: APPLIED VOLTAGE ANALYZER CIRCUIT LOAD NODE -->
+            <div class="tool-panel">
+                <h3 class="text-xs font-bold tracking-wider text-slate-300 uppercase flex items-center gap-2">⚡ Load Performance Analyzer (Ohm's Law)</h3>
+                <div style="display: flex; flex-direction: column; gap: 12px; text-align: left; margin-top: 4px;">
+                    <div style="width: 100%;">
+                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Applied Tension Voltage</label>
+                        <div style="position: relative; width: 100%;">
+                            <input type="number" id="ohmsLawVoltInput" class="tool-input" value="12">
+                            <span style="position: absolute; right: 12px; top: 12px; font-size: 10px; font-weight: 900; color: #475569;">V</span>
+                        </div>
+                    </div>
+                    <div style="width: 100%; display: flex; justify-content: space-between; background-color: #070a13; border: 1px solid #1e293b; border-radius: 12px; font-family: monospace; font-size: 11px; padding: 10px 14px;">
+                        <span style="color: #64748b; text-transform: uppercase; font-size: 9px; font-weight: bold;">Current Draw:</span>
+                        <div id="ohmsLawCurrentText" style="color: #22d3ee; font-weight: bold;">12.00 mA</div>
+                    </div>
+                    <div style="width: 100%; display: flex; justify-content: space-between; background-color: #070a13; border: 1px solid #1e293b; border-radius: 12px; font-family: monospace; font-size: 11px; padding: 10px 14px;">
+                        <span style="color: #64748b; text-transform: uppercase; font-size: 9px; font-weight: bold;">Power Load:</span>
+                        <div id="ohmsLawPowerText" style="color: #eab308; font-weight: bold;">144.00 mW</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 9: AUDIO LAB CONSOLE ASSIST ENGINE INTERACTION MODULATOR -->
+            <div class="tool-panel span-full">
+                <div class="tool-header"><span class="tool-title">🤖 Assistant Hub Q&A</span><span class="tool-badge">AI LOGIC</span></div>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; font-family: monospace; font-size: 11px; margin-bottom: 4px;">
+                    <button id="quickQuestionPill1" style="background-color: #070a13; border: 1px solid #1e293b; color: #cbd5e1; padding: 4px 10px; border-radius: 8px; cursor: pointer;">⚡ Ohm's Law Formula</button>
+                    <button id="quickQuestionPill2" style="background-color: #070a13; border: 1px solid #1e293b; color: #cbd5e1; padding: 4px 10px; border-radius: 8px; cursor: pointer;">📐 Delta-Wye Rules</button>
+                    <button id="quickQuestionPill3" style="background-color: #070a13; border: 1px solid #1e293b; color: #cbd5e1; padding: 4px 10px; border-radius: 8px; cursor: pointer;">📊 Data Rate Constraints</button>
+                </div>
+
+                <div style="position: relative; display: flex; width: 100%;">
+                    <!-- Beautiful rounded shape typing console box matching query spec parameters -->
+                    <input type="text" id="aiAssistantQueryInput" placeholder="Type query or use mic..." class="round-pill-input">
+                    <button id="aiMicrophoneToggleActionBtn" style="position: absolute; right: 16px; top: 12px; background: none; border: none; cursor: pointer; font-size: 15px; color: #64748b;">🎙️</button>
+                </div>
+                <button id="aiSubmitTriggerBtn" class="tool-btn" style="width: 100%; margin-top: 4px;">Ask Engine</button>
+                <div id="aiAssistantResponseTextBox" class="hidden" style="background-color: #070a13; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 11px; border: 1px solid #1e293b; color: #cbd5e1; white-space: pre-line; text-align: left; margin-top: 6px;"></div>
+            </div>
+
+        </div> 
+    </div>
+
+    <!-- ENGINE PARAMETERS SETTINGS MODAL -->
+    <div id="settingsOverlayPanel" class="fixed-overlay hidden">
+        <div class="modal-body" style="max-width: 360px;">
+            <h3 style="font-size: 14px; font-weight: bold; color: #22d3ee; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 8px;">⚙️ Engine Lab Controls</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin: 10px 0; font-size: 13px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; background-color: #070a13; padding: 10px; border-radius: 8px; border: 1px solid #1e293b;">
+                    <span>Auto-Save Matrix Sheets</span><span style="color: #10b981; font-weight: bold;">[ENABLED]</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; background-color: #070a13; padding: 10px; border-radius: 8px; border: 1px solid #1e293b;">
+                    <span>Laser Diagnostic Feed</span><span style="color: #22d3ee; font-weight: bold;">[TURBO LOOP]</span>
+                </div>
+            </div>
+            <button id="closeSettingsPanelBtn" class="tool-btn" style="width: 100%; border-radius: 8px;">Close Config Panel</button>
+        </div>
+    </div>
+
+    <!-- SHORTCUT SPEC LIST DRAWER POPUP SHEET -->
+    <div id="drawerOverlaySheet" class="fixed-overlay hidden">
+        <div class="modal-body">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #a3a3a3; border-bottom: 1px solid #333; padding-bottom: 8px;">
+                <span id="drawerClearHistoryActionBtn" style="cursor: pointer;">Clear all</span>
+                <span>Ctrl + Alt + K</span>
+            </div>
+            <div style="text-align: left !important; margin: 8px 0;">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: white;">Navigation</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: #e5e5e5;">
+                    <div style="display: flex; justify-content: space-between;"><span>Open Calls</span><span style="color: #a3a3a3; font-family: monospace;">Ctrl + 1</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Open Messages</span><span style="color: #a3a3a3; font-family: monospace;">Ctrl + 2</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Open Photos</span><span style="color: #a3a3a3; font-family: monospace;">Ctrl + 3</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Open Settings</span><span style="color: #a3a3a3; font-family: monospace;">Ctrl + ,</span></div>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #333; padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                <button id="openRatingsEngineBtn" style="background: none; border: none; color: #60a5fa; font-size: 12px; cursor: pointer; text-align: left; font-weight: 600;">⭐ 4. Review & Star Rating (14,250 reviews)[cite: 1]</button>
+                <button id="drawerCloseActionBtn" style="background-color: #2e2e2e; border: 1px solid #444; color: white; padding: 6px 20px; font-size: 13px; border-radius: 6px; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SYSTEM USER REVIEWS POPUP SHEET -->
+    <div id="ratingsPopupOverlay" class="fixed-overlay hidden">
+        <div class="card font-sans" style="width: 100%; max-width: 380px; background-color: #111827; border: 1px solid #1e293b; padding: 24px; border-radius: 28px; display: flex; flex-direction: column; gap: 16px;">
+            <h3 style="font-size: 14px; font-weight: bold; color: #22d3ee; text-transform: uppercase;">⭐ User Feedback Engine</h3>
+            <div style="background-color: #070a13; padding: 16px; border-radius: 12px; margin: 4px 0;">
+                <p style="font-size: 32px; font-weight: 900; color: #f59e0b; font-family: monospace;">4.9 / 5.0</p>
+                <p style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Based on 14,250 verified customer calculation review records[cite: 1]</p>
+            </div>
+            <button id="dismissRatingsPanelBtn" style="background: linear-gradient(to right, #06b6d4, #2563eb); border: none; color: white; font-size: 11px; font-weight: bold; text-transform: uppercase; padding: 10px 20px; border-radius: 10px; cursor: pointer; height: 38px;">Dismiss</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Pure Standalone Offline JavaScript Engine Modulator
+const LAB_STATE = {
+    currentWidth: '440px',
+    type: 4,
+    band1: 'brown', band2: 'black', band3: 'black', band4: 'black', band5: 'black',
+    multiplier: 'red', tolerance: 'gold', ppm: 'brown',
+    rawOhmValue: 1000,
+    cameraActive: false, isScanning: false, isRecording: false,
+    digits: ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'grey', 'white'],
+    digitValues: { black:0, brown:1, red:2, orange:3, yellow:4, green:5, blue:6, violet:7, grey:8, white:9 },
+    multipliers: { black:1, brown:10, red:100, orange:1000, yellow:10000, green:100000, blue:1000000, violet:10000000, gold:0.1, silver:0.01 },
+    tolerances: { brown:'±1%', red:'±2%', green:'±0.5%', blue:'±0.25%', violet:'±0.1%', grey:'±0.05%', gold:'±5%', silver:'±10%' },
+    ppms: { black:250, brown:100, red:50, orange:15, yellow:25, green:20, blue:10, violet:5, grey:1 },
+    recognition: null, streamTrack: null
+};
+
+function initCalculator() {
+    bindInterfaceDomEvents();
+    syncActiveCalculations();
+}
+
+function bindInterfaceDomEvents() {
+    // Layout Width Engine Listeners
+    document.getElementById('btnPhone').addEventListener('click', () => changeViewMode('440px'));
+    document.getElementById('btnTablet').addEventListener('click', () => changeViewMode('768px'));
+    document.getElementById('btnLaptop').addEventListener('click', () => changeViewMode('1200px'));
+
+    // Component Band Selector Tab Listeners
+    for(let i=2; i<=8; i++) {
+        document.getElementById(`bandTab${i}`).addEventListener('click', (e) => {
+            document.querySelectorAll('.tabs-list .tab-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            LAB_STATE.type = i;
+            syncActiveCalculations();
+        });
+    }
+
+    // Direct Input Instant Auto-Calculation Action Modulators
+    document.getElementById('selBand1').addEventListener('change', (e) => { LAB_STATE.band1 = e.target.value; syncActiveCalculations(); });
+    document.getElementById('selBand2').addEventListener('change', (e) => { LAB_STATE.band2 = e.target.value; syncActiveCalculations(); });
+    document.getElementById('selBand3').addEventListener('change', (e) => { LAB_STATE.band3 = e.target.value; syncActiveCalculations(); });
+    document.getElementById('selBand4').addEventListener('change', (e) => { LAB_STATE.band4 = e.target.value; syncActiveCalculations(); });
+    document.getElementById('selBand5').addEventListener('change', (e) => { LAB_STATE.band5 = e.target.value; syncActiveCalculations(); });
+    document.getElementById('selMultiplier').addEventListener('change', (e) => { LAB_STATE.multiplier = e.target.value; syncActiveCalculations(); });
+    document.getElementById('selTolerance').addEventListener('change', (e) => { LAB_STATE.tolerance = e.target.value; syncActiveCalculations(); });
+    document.getElementById('selPpm').addEventListener('change', (e) => { LAB_STATE.ppm = e.target.value; syncActiveCalculations(); });
+
+    // Instantly solve equations the millisecond numbers change (No enter button needed)
+    document.getElementById('parallelInputTxt').addEventListener('input', runParallelSolverMath);
+    document.getElementById('wyeDeltaInput1').addEventListener('input', runDeltaWyeTransformerMath);
+    document.getElementById('wyeDeltaInput2').addEventListener('input', runDeltaWyeTransformerMath);
+    document.getElementById('wyeDeltaInput3').addEventListener('input', runDeltaWyeTransformerMath);
+    document.getElementById('thermalRefTemp').addEventListener('input', runThermalDriftMath);
+    document.getElementById('thermalTargetTemp').addEventListener('input', runThermalDriftMath);
+    document.getElementById('ohmsLawVoltInput').addEventListener('input', runOhmicLoadMath);
+    
+    document.getElementById('smdCalculateActionBtn').addEventListener('click', runSMDDecoderMath);
+
+    // Overlays, Drawers & System Modals Hooks
+    document.getElementById('drawerOpenBtn').addEventListener('click', () => document.getElementById('drawerOverlaySheet').classList.remove('hidden'));
+    document.getElementById('drawerCloseActionBtn').addEventListener('click', () => document.getElementById('drawerOverlaySheet').classList.add('hidden'));
+    document.getElementById('drawerClearHistoryActionBtn').addEventListener('click', () => alert('Calculations history logs records flushed.'));
+    document.getElementById('openRatingsEngineBtn').addEventListener('click', () => {
+        document.getElementById('drawerOverlaySheet').classList.add('hidden');
+        document.getElementById('ratingsPopupOverlay').classList.remove('hidden');
+    });
+    document.getElementById('dismissRatingsPanelBtn').addEventListener('click', () => document.getElementById('ratingsPopupOverlay').classList.add('hidden'));
+    
+    document.getElementById('settingsToggleBtn').addEventListener('click', () => document.getElementById('settingsOverlayPanel').classList.remove('hidden'));
+    document.getElementById('closeSettingsPanelBtn').addEventListener('click', () => document.getElementById('settingsOverlayPanel').classList.add('hidden'));
+
+    // Audio Assistant Hub Events Modulators
+    document.getElementById('quickQuestionPill1').addEventListener('click', () => submitVoiceAssistantQuery("What is Ohm's Law formula?"));
+    document.getElementById('quickQuestionPill2').addEventListener('click', () => submitVoiceAssistantQuery("Explain Delta-Wye transformation use"));
+    document.getElementById('quickQuestionPill3').addEventListener('click', () => submitVoiceAssistantQuery("What is data rate constraint limit?"));
+    document.getElementById('aiSubmitTriggerBtn').addEventListener('click', () => submitVoiceAssistantQuery(document.getElementById('aiAssistantQueryInput').value));
+    document.getElementById('aiMicrophoneToggleActionBtn').addEventListener('click', handleVoiceCaptureModulation);
+
+    // Hardware Scanner System Hook Elements
+    document.getElementById('camToggleBtn').addEventListener('click', handleCameraStreamingToggle);
+    document.getElementById('snapshotTriggerBtn').addEventListener('click', triggerCameraSnapshotCapture);
+    document.getElementById('mediaFileInput').addEventListener('change', handleFileImageStreamUpload);
+}
+
+function changeViewMode(targetSize) {
+    LAB_STATE.currentWidth = targetSize;
+    document.querySelectorAll('.mode-btns .mode-btn').forEach(b => b.classList.remove('active'));
+    
+    const container = document.getElementById('masterContainer');
+    const wrapperGrid = document.getElementById('layoutSplitEngine');
+
+    if (targetSize === '440px') {
+        document.getElementById('btnPhone').classList.add('active');
+        container.style.maxWidth = '440px';
+        wrapperGrid.className = 'sub-tools-group';
+    } else if (targetSize === '768px') {
+        document.getElementById('btnTablet').classList.add('active');
+        container.style.maxWidth = '720px';
+        wrapperGrid.className = 'sub-tools-group';
+    } else {
+        document.getElementById('btnLaptop').classList.add('active');
+        container.style.maxWidth = '1360px';
+        wrapperGrid.className = 'widescreen-active-dashboard';
+    }
+}
+
+function syncActiveCalculations() {
+    const t = LAB_STATE.type;
+    document.getElementById('bandEl1').className = 'color-band band-' + LAB_STATE.band1;
+    document.getElementById('bandEl2').className = 'color-band ' + (t >= 2 ? 'band-' + LAB_STATE.band2 : 'hidden');
+    document.getElementById('bandEl3').className = 'color-band ' + (t >= 5 ? 'band-' + LAB_STATE.band3 : 'hidden');
+    document.getElementById('bandEl4').className = 'color-band ' + (t >= 7 ? 'band-' + LAB_STATE.band4 : 'hidden');
+    document.getElementById('bandEl5').className = 'color-band ' + (t == 8 ? 'band-' + LAB_STATE.band5 : 'hidden');
+    document.getElementById('bandElMul').className = 'color-band ' + (t >= 3 ? 'band-' + LAB_STATE.multiplier : 'hidden');
+    document.getElementById('bandElTol').className = 'color-band ' + (t >= 4 ? 'band-' + LAB_STATE.tolerance : 'hidden');
+    document.getElementById('bandElPpm').className = 'color-band ' + (t >= 6 ? 'band-' + LAB_STATE.ppm : 'hidden');
+
+    document.getElementById('boxB2').className = t >= 2 ? 'dropdown-container' : 'hidden';
+    document.getElementById('boxB3').className = t >= 5 ? 'dropdown-container' : 'hidden';
+    document.getElementById('boxB4').className = t >= 7 ? 'dropdown-container' : 'hidden';
+    document.getElementById('boxB5').className = t == 8 ? 'dropdown-container' : 'hidden';
+    document.getElementById('boxMul').className = t >= 3 ? 'dropdown-container' : 'hidden';
+    document.getElementById('boxTol').className = t >= 4 ? 'dropdown-container' : 'hidden';
+    document.getElementById('boxPpm').className = t >= 6 ? 'dropdown-container' : 'hidden';
+
+    let baseVal = 0;
+    let v1 = LAB_STATE.digitValues[LAB_STATE.band1] || 0;
+    let v2 = LAB_STATE.digitValues[LAB_STATE.band2] || 0;
+    let v3 = LAB_STATE.digitValues[LAB_STATE.band3] || 0;
+    let v4 = LAB_STATE.digitValues[LAB_STATE.band4] || 0;
+    let v5 = LAB_STATE.digitValues[LAB_STATE.band5] || 0;
+
+    if (t === 2 || t <= 4) { baseVal = (v1 * 10) + v2; } 
+    else if (t <= 6) { baseVal = (v1 * 100) + (v2 * 10) + v3; } 
+    else if (t === 7) { baseVal = (v1 * 1000) + (v2 * 100) + (v3 * 10) + v4; } 
+    else if (t === 8) { baseVal = (v1 * 10000) + (v2 * 1000) + (v3 * 100) + (v4 * 10) + v5; }
+
+    LAB_STATE.rawOhmValue = baseVal * (LAB_STATE.multipliers[LAB_STATE.multiplier] || 1);
+
+    if (LAB_STATE.rawOhmValue >= 1000000) {
+        document.getElementById('ohmsResultText').textContent = (LAB_STATE.rawOhmValue / 1000000).toFixed(2) + ' MΩ';
+    } else if (LAB_STATE.rawOhmValue >= 1000) {
+        document.getElementById('ohmsResultText').textContent = (LAB_STATE.rawOhmValue / 1000).toFixed(2) + ' kΩ';
+    } else {
+        document.getElementById('ohmsResultText').textContent = LAB_STATE.rawOhmValue.toFixed(2) + ' Ω';
+    }
+
+    document.getElementById('tolResultText').textContent = t <= 3 ? '±20%' : (LAB_STATE.tolerances[LAB_STATE.tolerance] || '±5%');
+    document.getElementById('ppmResultText').textContent = t >= 6 ? (LAB_STATE.ppms[LAB_STATE.ppm] + ' ppm') : 'N/A';
+
+    runOhmicLoadMath();
+    runThermalDriftMath();
+}
+
+function runParallelSolverMath() {
+    let inputStr = document.getElementById('parallelInputTxt').value.trim();
+    const outputEl = document.getElementById('parallelOutputTxt');
+    if(!inputStr) { outputEl.textContent = '0.00 Ω'; return; }
+    
+    let elements = inputStr.split(',').map(num => parseFloat(num.trim())).filter(num => !isNaN(num) && num > 0);
+    if(elements.length === 0) { outputEl.textContent = '0.00 Ω'; return; }
+    
+    let reciprocalSum = elements.reduce((acc, curr) => acc + (1 / curr), 0);
+    let finalResistance = 1 / reciprocalSum;
+
+    outputEl.textContent = finalResistance >= 1000000 ? (finalResistance / 1000000).toFixed(2) + ' MΩ' :
+                           finalResistance >= 1000 ? (finalResistance / 1000).toFixed(2) + ' kΩ' : 
+                           finalResistance.toFixed(2) + ' Ω';
+}
+
+// Fixed core variable declaration parsing bugs inside the offline JavaScript loop
+function runSMDDecoderMath() {
+    let code = document.getElementById('smdInputTxt').value.trim().toUpperCase();
+    const outputEl = document.getElementById('smdOutputText');
+    if(!code) return;
+    let val = 0;
+    if (code.includes('R')) {
+        let parts = code.split('R');
+        val = (parts[0] ? parseFloat(parts[0]) : 0) + (parts[1] ? parseFloat('0.' + parts[1]) : 0);
+    } else if (!isNaN(code)) {
+        if (code.length === 3) {
+            val = ((parseInt(code[0]) * 10) + parseInt(code[1])) * Math.pow(10, parseInt(code[2]));
+        } else if (code.length === 4) {
+            val = ((parseInt(code[0]) * 100) + (parseInt(code[1]) * 10) + parseInt(code[2])) * Math.pow(10, parseInt(code[3]));
+        } else {
+            outputEl.textContent = "Needs 3/4 Digits"; return;
+        }
+    } else { outputEl.textContent = "Syntax Error"; return; }
+    outputEl.textContent = val >= 1000 ? (val / 1000).toFixed(2) + ' kΩ' : val.toFixed(2) + ' Ω';
+}
+
+function runDeltaWyeTransformerMath() {
+    let r1 = parseFloat(document.getElementById('wyeDeltaInput1').value) || 0;
+    let r2 = parseFloat(document.getElementById('wyeDeltaInput2').value) || 0;
+    let r3 = parseFloat(document.getElementById('wyeDeltaInput3').value) || 0;
+    
+    let o1 = 0, o2 = 0, o3 = 0;
+    let sum = r1 + r2 + r3;
+    if(sum > 0) {
+        o1 = (r1 * r3) / sum;
+        o2 = (r1 * r2) / sum;
+        o3 = (r2 * r3) / sum;
+    }
+
+    const fmt = (v) => v >= 1000 ? (v / 1000).toFixed(2) + ' kΩ' : v.toFixed(2) + ' Ω';
+    document.getElementById('wyeDeltaOutA').textContent = fmt(o1);
+    document.getElementById('wyeDeltaOutB').textContent = fmt(o2);
+    document.getElementById('wyeDeltaOutC').textContent = fmt(o3);
+}
+
+function runThermalDriftMath() {
+    if (!LAB_STATE.rawOhmValue) return;
+    let ppmCoeff = LAB_STATE.type >= 6 ? (LAB_STATE.ppms[LAB_STATE.ppm] || 0) : 0;
+    let tRef = parseFloat(document.getElementById('thermalRefTemp').value) || 0;
+    let tTarget = parseFloat(document.getElementById('thermalTargetTemp').value) || 0;
+    
+    let deltaT = tTarget - tRef;
+    let resistanceDrift = LAB_STATE.rawOhmValue * (ppmCoeff / 1000000) * deltaT;
+    let finalValue = LAB_STATE.rawOhmValue + resistanceDrift;
+
+    const fmt = (v) => v >= 1000000 ? (v / 1000000).toFixed(2) + ' MΩ' : v >= 1000 ? (v / 1000).toFixed(2) + ' kΩ' : v.toFixed(2) + ' Ω';
+    document.getElementById('thermalDriftDeltaText').textContent = fmt(resistanceDrift);
+    document.getElementById('thermalDriftFinalText').textContent = fmt(finalValue);
+}
+
+function runOhmicLoadMath() {
+    if (!LAB_STATE.rawOhmValue) return;
+    let v = parseFloat(document.getElementById('ohmsLawVoltInput').value) || 0;
+    let current = v / LAB_STATE.rawOhmValue;
+    
+    document.getElementById('ohmsLawCurrentText').textContent = current >= 1 ? current.toFixed(2) + ' A' : (current * 1000).toFixed(2) + ' mA';
+    document.getElementById('ohmsLawPowerText').textContent = (v * current) >= 1 ? (v * current).toFixed(2) + ' W' : (v * current * 1000).toFixed(2) + ' mW';
+}
+
+function submitVoiceAssistantQuery(forcedString) {
+    let query = forcedString ? forcedString.trim() : document.getElementById('aiAssistantQueryInput').value.trim();
+    const displayBox = document.getElementById('aiAssistantResponseTextBox');
+    if(!query) return;
+
+    displayBox.classList.remove('hidden');
+    let q = query.toLowerCase();
+
+    if (q.includes("ohm") || q.includes("formula")) {
+        displayBox.innerHTML = "<strong>⚡ Ohm's Law Equations:</strong><br>V = I × R | I = V / R | P = V² / R<br><br>Calculates loop values instantly across terminal matrices.";
+    } else if (q.includes("delta") || q.includes("wye")) {
+        displayBox.innerHTML = "<strong>📐 Delta-Wye Conversion Rules:</strong><br>R_Node = (R_Adj1 × R_Adj2) / ∑R_Delta.<br><br>Used to evaluate balanced bridge configurations.";
+    } else if (q.includes("rate") || q.includes("data") || q.includes("constraint")) {
+        displayBox.innerHTML = "<strong>📊 Nyquist Rate Channel Limits:</strong><br>Data Rate = 2 × Bandwidth × log₂(L) bps.<br><br>Shannon capacities contract limits down to C = B × log₂(1 + SNR) over Gaussian signal boundaries.";
+    } else {
+        displayBox.innerHTML = "💡 Operational assessment inquiry logged inside system core tracking structures safely.";
+    }
+    document.getElementById('aiAssistantQueryInput').value = '';
+}
+
+function handleVoiceCaptureModulation() {
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!window.SpeechRecognition) { alert("Speech engine functions require online link contexts inside this system environment."); return; }
+    
+    if (LAB_STATE.isRecording) {
+        LAB_STATE.recognition.stop();
+        LAB_STATE.isRecording = false;
+        document.getElementById('aiMicrophoneToggleActionBtn').style.color = '#64748b';
+    } else {
+        LAB_STATE.recognition = new SpeechRecognition();
+        LAB_STATE.recognition.continuous = false;
+        LAB_STATE.recognition.lang = 'en-US';
+        
+        LAB_STATE.isRecording = true;
+        document.getElementById('aiMicrophoneToggleActionBtn').style.color = '#ef4444';
+        
+        LAB_STATE.recognition.onresult = (e) => {
+            document.getElementById('aiAssistantQueryInput').value = e.results[0][0].transcript;
+            LAB_STATE.isRecording = false;
+            document.getElementById('aiMicrophoneToggleActionBtn').style.color = '#64748b';
+            submitVoiceAssistantQuery();
+        };
+        LAB_STATE.recognition.start();
+    }
+}
+
+async function handleCameraStreamingToggle() {
+    const video = document.getElementById('hardwareVideoView');
+    const alertBox = document.getElementById('hardwarePhotoAlert');
+    const snapBtn = document.getElementById('snapshotTriggerBtn');
+    const uploadLabel = document.getElementById('uploadTriggerLabel');
+
+    if (LAB_STATE.cameraActive) {
+        if(LAB_STATE.streamTrack) LAB_STATE.streamTrack.stop();
+        LAB_STATE.cameraActive = false;
+        video.classList.add('hidden');
+        snapBtn.classList.add('hidden');
+        uploadLabel.classList.remove('hidden');
+        alertBox.classList.add('hidden');
+    } else {
+        document.getElementById('hardwarePhotoPreview').classList.add('hidden');
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            video.srcObject = stream;
+            LAB_STATE.streamTrack = stream.getTracks()[0];
+            LAB_STATE.cameraActive = true;
+            video.classList.remove('hidden');
+            snapBtn.classList.remove('hidden');
+            uploadLabel.classList.add('hidden');
+            alertBox.classList.remove('hidden');
+            alertBox.textContent = "🎥 Video stream channel established.";
+        } catch (err) {
+            alertBox.classList.remove('hidden');
+            alertBox.textContent = "❌ Error: Video peripheral access blocked offline.";
+        }
+    }
+}
+
+function triggerCameraSnapshotCapture() {
+    document.getElementById('laserScannerLine').classList.remove('hidden');
+    document.getElementById('hardwarePhotoAlert').textContent = "⚡ Capture processing pixel configurations...";
+    if(LAB_STATE.streamTrack) LAB_STATE.streamTrack.stop();
+    LAB_STATE.cameraActive = false;
+    document.getElementById('hardwareVideoView').classList.add('hidden');
+    document.getElementById('snapshotTriggerBtn').classList.add('hidden');
+    document.getElementById('uploadTriggerLabel').classList.remove('hidden');
+
+    setTimeout(() => {
+        executeMockScanResults();
+        document.getElementById('laserScannerLine').classList.add('hidden');
+    }, 1200);
+}
+
+function handleFileImageStreamUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if(LAB_STATE.streamTrack) LAB_STATE.streamTrack.stop();
+    LAB_STATE.cameraActive = false;
+    document.getElementById('hardwareVideoView').classList.add('hidden');
+    document.getElementById('snapshotTriggerBtn').classList.add('hidden');
+
+    const imgPreview = document.getElementById('hardwarePhotoPreview');
+    imgPreview.src = URL.createObjectURL(file);
+    imgPreview.classList.remove('hidden');
+
+    document.getElementById('laserScannerLine').classList.remove('hidden');
+    const alertBox = document.getElementById('hardwarePhotoAlert');
+    alertBox.classList.remove('hidden');
+    alertBox.textContent = `📁 Analyzing data packet matrix for "${file.name}"...`;
+
+    setTimeout(() => {
+        executeMockScanResults();
+        document.getElementById('laserScannerLine').classList.add('hidden');
+    }, 1400);
+}
+
+function executeMockScanResults() {
+    const mockDb = [
+        { type: 4, b1: 'yellow', b2: 'violet', mul: 'orange', tol: 'gold', log: '🔍 Match: 47.00 kΩ Core Matrix Verified!' },
+        { type: 5, b1: 'brown', b2: 'black', b3: 'black', mul: 'red', tol: 'brown', log: '🔍 Match: 10.00 kΩ Core Matrix Verified!' },
+        { type: 7, b1: 'red', b2: 'red', b3: 'black', b4: 'black', mul: 'black', tol: 'gold', log: '🔍 Match: 220.00 Ω Core Matrix Verified!' }
+    ];
+    let pick = mockDb[Math.floor(Math.random() * mockDb.length)];
+    LAB_STATE.type = pick.type;
+    LAB_STATE.band1 = pick.b1; LAB_STATE.band2 = pick.b2;
+    if(pick.b3) LAB_STATE.band3 = pick.b3;
+    if(pick.b4) LAB_STATE.band4 = pick.b4;
+    LAB_STATE.multiplier = pick.mul; LAB_STATE.tolerance = pick.tol;
+
+    document.querySelectorAll('.tabs-list .tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`bandTab${pick.type}`).classList.add('active');
+
+    document.getElementById('selBand1').value = LAB_STATE.band1;
+    document.getElementById('selBand2').value = LAB_STATE.band2;
+    document.getElementById('selBand3').value = LAB_STATE.band3;
+    document.getElementById('selBand4').value = LAB_STATE.band4;
+    document.getElementById('selMultiplier').value = LAB_STATE.multiplier;
+    document.getElementById('selTolerance').value = LAB_STATE.tolerance;
+
+    document.getElementById('hardwarePhotoAlert').textContent = pick.log;
+    syncActiveCalculations();
+}
+
+function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+document.addEventListener('DOMContentLoaded', initCalculator);
+</script>
+</body>
+</html>
